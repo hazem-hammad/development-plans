@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QC Automation Engineer Path - TypeScript & Playwright</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 50%, #4338ca 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .step-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step-item:hover .step-circle {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .step-item.active .step-circle {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white !important;
+            border-color: #6366f1;
+            border-width: 3px;
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6), 0 0 30px rgba(99, 102, 241, 0.4);
+            animation: pulse 2s infinite;
+            transform: scale(1.1);
+        }
+
+        .step-item.completed .step-circle {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: transparent !important;
+            border-color: #10B981;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .step-item.completed .step-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            animation: shimmer 2s infinite;
+            z-index: 1;
+        }
+
+        .step-item.completed .step-circle::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            animation: checkPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2;
+        }
+
+        @keyframes checkPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .step-item.completed .step-circle {
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                box-shadow:
+                    0 0 10px rgba(16, 185, 129, 0.4),
+                    0 0 20px rgba(16, 185, 129, 0.3),
+                    0 0 30px rgba(16, 185, 129, 0.2);
+            }
+            50% {
+                box-shadow:
+                    0 0 20px rgba(16, 185, 129, 0.6),
+                    0 0 30px rgba(16, 185, 129, 0.5),
+                    0 0 40px rgba(16, 185, 129, 0.4);
+            }
+        }
+
+        .step-item.active .step-line {
+            background: linear-gradient(to right, #6366f1, #4f46e5);
+            height: 4px !important;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.5);
+        }
+
+        .step-item.completed .step-line {
+            background: linear-gradient(to right, #10B981, #059669);
+            height: 4px !important;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .step-item.active .step-label {
+            color: #FFFFFF !important;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(99, 102, 241, 0.8);
+            transform: scale(1.05);
+        }
+
+        .step-item.completed .step-label {
+            color: #FFFFFF !important;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(16, 185, 129, 0.8);
+        }
+
+        .step-circle {
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 16px rgba(99, 102, 241, 0.5);
+            }
+            50% {
+                box-shadow: 0 4px 24px rgba(99, 102, 241, 0.8);
+            }
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        .accordion-header {
+            transition: all 0.2s ease;
+            cursor: default !important;
+        }
+
+        .accordion-header.open {
+            background-color: #e0e7ff !important;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .phase-content > div {
+            transition: all 0.3s ease;
+        }
+
+        .phase-content > div:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .resource-link {
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .resource-link:hover {
+            background-color: #e0e7ff;
+            transform: translateX(4px);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">🧪 QC Automation Engineer Path</h1>
+            <p class="mt-3 text-lg text-white drop-shadow">Master TypeScript, Playwright, and modern test automation frameworks.</p>
+        </header>
+
+        <nav id="stepper-nav" class="mb-12">
+            <div class="flex items-center justify-between">
+                <a href="#step-1" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-1">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">1</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">Basics</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-2" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-2">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">2</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">API Testing</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-3" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-3">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">3</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">E2E Web</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-4" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-4">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">4</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">Mobile Testing</p>
+                </a>
+            </div>
+        </nav>
+
+        <main id="phases-container">
+
+            <section id="phase-1" class="phase-content mb-12">
+                <div id="step-1"></div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
+                        <span>Phase 1: Basics & Prerequisites</span>
+                        <span class="text-base font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">~6 Weeks</span>
+                    </h2>
+                    <p class="text-gray-600 mb-6">Build a strong foundation in programming fundamentals, TypeScript, and testing concepts before diving into automation frameworks.</p>
+                    <div class="space-y-4">
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Programming Fundamentals (JavaScript)</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Variables and data types</li>
+                                        <li>Control structures (if/else, loops, switch)</li>
+                                        <li>Functions and arrow functions</li>
+                                        <li>Arrays and array methods (map, filter, reduce, find, forEach)</li>
+                                        <li>Objects and object destructuring</li>
+                                        <li>Promises and async/await</li>
+                                        <li>Error handling (try/catch)</li>
+                                        <li>ES6+ features (spread operator, template literals)</li>
+                                        <li>Modules (import/export)</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://www.youtube.com/watch?v=W6NZfCO5SIk" target="_blank" class="text-indigo-600 hover:underline">JavaScript Programming - Full Course (freeCodeCamp)</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">TypeScript Essentials</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>TypeScript setup and configuration (tsconfig.json)</li>
+                                        <li>Type annotations and type inference</li>
+                                        <li>Primitive types (string, number, boolean, null, undefined)</li>
+                                        <li>Arrays and tuples</li>
+                                        <li>Interfaces and type aliases</li>
+                                        <li>Union and intersection types</li>
+                                        <li>Enums</li>
+                                        <li>Generics</li>
+                                        <li>Type guards and narrowing</li>
+                                        <li>Utility types (Partial, Pick, Omit, Record)</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://www.totaltypescript.com/tutorials/beginners-typescript" target="_blank" class="text-indigo-600 hover:underline">Total TypeScript Beginner's Tutorial</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=gp5H0Vw39yw" target="_blank" class="text-indigo-600 hover:underline">TypeScript Full Course (freeCodeCamp)</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Testing Fundamentals & Concepts</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Software testing principles and lifecycle</li>
+                                        <li>Types of testing (Unit, Integration, E2E, API)</li>
+                                        <li>Test pyramid concept</li>
+                                        <li>Manual vs Automated testing</li>
+                                        <li>Test case design and documentation</li>
+                                        <li>Bug reporting and tracking</li>
+                                        <li>AAA pattern (Arrange, Act, Assert)</li>
+                                        <li>Test data management</li>
+                                        <li>CI/CD basics</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://www.guru99.com/software-testing.html" target="_blank" class="text-indigo-600 hover:underline">Software Testing Tutorial (Guru99)</a></li>
+                                        <li><a href="https://martinfowler.com/articles/practical-test-pyramid.html" target="_blank" class="text-indigo-600 hover:underline">The Practical Test Pyramid (Martin Fowler)</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=Jv2uxzhPFl4" target="_blank" class="text-indigo-600 hover:underline">Software Testing Tutorial (Edureka)</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Git & Version Control</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Git basics (init, clone, add, commit, push, pull)</li>
+                                        <li>Branching and merging strategies</li>
+                                        <li>Pull requests and code reviews</li>
+                                        <li>Resolving merge conflicts</li>
+                                        <li>.gitignore configuration</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Project for Phase 1 -->
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-purple-900 flex items-center">
+                        🛠️ Phase 1 Practice Project: TypeScript Utilities Library
+                    </h3>
+                    <p class="text-gray-700 mb-4">Create a TypeScript utilities library with comprehensive unit tests to practice programming fundamentals and TypeScript features.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Set up TypeScript project with proper tsconfig.json</li>
+                            <li>Create utility functions: string manipulation, array operations, data validation</li>
+                            <li>Use interfaces and type aliases for function parameters</li>
+                            <li>Implement generic functions for reusable utilities</li>
+                            <li>Add error handling with custom error types</li>
+                            <li>Document functions with JSDoc comments</li>
+                            <li>Set up Git repository with meaningful commits</li>
+                            <li>Create README with usage examples</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add GitHub Actions for automated testing</li>
+                            <li>Implement code coverage reporting (aim for 90%+)</li>
+                            <li>Use ESLint and Prettier for code quality</li>
+                            <li>Publish package to npm</li>
+                            <li>Add TypeScript declaration files (.d.ts)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="phase-2" class="phase-content mb-12 hidden">
+                <div id="step-2"></div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
+                        <span>Phase 2: API Testing with Playwright</span>
+                        <span class="text-base font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">~4 Weeks</span>
+                    </h2>
+                    <p class="text-gray-600 mb-6">Master API testing using Playwright's built-in API testing capabilities. Learn to validate REST APIs, handle authentication, and implement comprehensive test suites.</p>
+                    <div class="space-y-4">
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">REST API Fundamentals</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>HTTP methods (GET, POST, PUT, PATCH, DELETE)</li>
+                                        <li>Status codes and their meanings</li>
+                                        <li>Request/response structure (headers, body, query params)</li>
+                                        <li>JSON and XML data formats</li>
+                                        <li>REST API design principles</li>
+                                        <li>Authentication methods (Bearer token, Basic Auth, API keys)</li>
+                                        <li>Understanding API documentation (Swagger/OpenAPI)</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://www.youtube.com/watch?v=lsMQRaeKNDk" target="_blank" class="text-indigo-600 hover:underline">REST API Crash Course</a></li>
+                                        <li><a href="https://restfulapi.net/" target="_blank" class="text-indigo-600 hover:underline">REST API Tutorial</a></li>
+                                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP" target="_blank" class="text-indigo-600 hover:underline">HTTP Documentation (MDN)</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Playwright API Testing</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Playwright installation and setup</li>
+                                        <li>Using playwright.request for API testing</li>
+                                        <li>Making HTTP requests (GET, POST, PUT, DELETE)</li>
+                                        <li>Request configuration (headers, body, timeout)</li>
+                                        <li>Response validation (status, headers, body)</li>
+                                        <li>JSON schema validation</li>
+                                        <li>Extracting and using response data</li>
+                                        <li>API request chaining and dependencies</li>
+                                        <li>Test fixtures and reusable context</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/api-testing" target="_blank" class="text-indigo-600 hover:underline font-medium">Playwright API Testing Documentation</a></li>
+                                        <li><a href="https://playwright.dev/docs/test-api-testing" target="_blank" class="text-indigo-600 hover:underline">Playwright Test for API Testing</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=qeM4BbJkM7Q" target="_blank" class="text-indigo-600 hover:underline">Playwright API Testing Tutorial</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Advanced API Testing Patterns</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Test data management strategies</li>
+                                        <li>Authentication handling and token management</li>
+                                        <li>Environment configuration (dev, staging, prod)</li>
+                                        <li>API mocking and stubbing</li>
+                                        <li>Performance testing basics (response time validation)</li>
+                                        <li>Contract testing concepts</li>
+                                        <li>Testing error scenarios and edge cases</li>
+                                        <li>Parameterized tests and data-driven testing</li>
+                                        <li>Parallel test execution</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/test-parameterize" target="_blank" class="text-indigo-600 hover:underline">Playwright Parameterized Tests</a></li>
+                                        <li><a href="https://playwright.dev/docs/test-fixtures" target="_blank" class="text-indigo-600 hover:underline">Test Fixtures</a></li>
+                                        <li><a href="https://testfully.io/blog/api-testing-best-practices/" target="_blank" class="text-indigo-600 hover:underline">API Testing Best Practices</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Assertions & Reporting</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Playwright expect assertions</li>
+                                        <li>Custom matchers and assertions</li>
+                                        <li>Response body assertions (JSON, text)</li>
+                                        <li>Schema validation libraries (Zod, Joi, AJV)</li>
+                                        <li>HTML reporting with Playwright</li>
+                                        <li>Custom reporters</li>
+                                        <li>Screenshot and trace on failure</li>
+                                        <li>Test retry strategies</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/test-assertions" target="_blank" class="text-indigo-600 hover:underline">Playwright Assertions</a></li>
+                                        <li><a href="https://playwright.dev/docs/test-reporters" target="_blank" class="text-indigo-600 hover:underline">Playwright Reporters</a></li>
+                                        <li><a href="https://zod.dev/" target="_blank" class="text-indigo-600 hover:underline">Zod - TypeScript Schema Validation</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Project for Phase 2 -->
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-purple-900 flex items-center">
+                        🛠️ Phase 2 Practice Project: E-Commerce API Test Suite
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a comprehensive API test suite for a public e-commerce API (like FakeStoreAPI or RESTful-Booker) using Playwright and TypeScript.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Set up Playwright project with TypeScript configuration</li>
+                            <li>Test all CRUD operations (Create, Read, Update, Delete)</li>
+                            <li>Implement authentication flow testing</li>
+                            <li>Validate response status codes, headers, and body structure</li>
+                            <li>Use JSON schema validation with Zod or AJV</li>
+                            <li>Create reusable API helper classes/functions</li>
+                            <li>Implement data-driven tests with multiple test datasets</li>
+                            <li>Add environment configuration for different endpoints</li>
+                            <li>Generate HTML reports with test results</li>
+                            <li>Organize tests with proper folder structure</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add performance assertions (response time < 2s)</li>
+                            <li>Implement test data cleanup in afterEach hooks</li>
+                            <li>Add negative testing scenarios (invalid data, unauthorized access)</li>
+                            <li>Set up GitHub Actions for CI/CD pipeline</li>
+                            <li>Implement custom Allure reporting</li>
+                            <li>Add API request/response logging</li>
+                            <li>Create reusable fixtures for common test data</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="phase-3" class="phase-content mb-12 hidden">
+                <div id="step-3"></div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
+                        <span>Phase 3: E2E Web Testing with Playwright</span>
+                        <span class="text-base font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">~6 Weeks</span>
+                    </h2>
+                    <p class="text-gray-600 mb-6">Learn end-to-end web automation testing with Playwright. Master browser automation, page object models, and advanced testing patterns for modern web applications.</p>
+                    <div class="space-y-4">
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Web Automation Fundamentals</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>DOM structure and HTML basics</li>
+                                        <li>CSS selectors and XPath</li>
+                                        <li>Browser DevTools for element inspection</li>
+                                        <li>Understanding web elements and attributes</li>
+                                        <li>Synchronization and wait strategies</li>
+                                        <li>Browser contexts and pages</li>
+                                        <li>Multiple browser support (Chromium, Firefox, WebKit)</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" class="text-indigo-600 hover:underline">HTML Basics (MDN)</a></li>
+                                        <li><a href="https://www.w3schools.com/cssref/css_selectors.php" target="_blank" class="text-indigo-600 hover:underline">CSS Selector Reference</a></li>
+                                        <li><a href="https://playwright.dev/docs/locators" target="_blank" class="text-indigo-600 hover:underline">Playwright Locators</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Playwright E2E Core Concepts</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Playwright Test framework setup</li>
+                                        <li>Browser and context management</li>
+                                        <li>Navigating to URLs and pages</li>
+                                        <li>Locator strategies (role, text, CSS, XPath)</li>
+                                        <li>Auto-waiting mechanism</li>
+                                        <li>Interactions (click, fill, select, check, hover)</li>
+                                        <li>Assertions for UI elements</li>
+                                        <li>Screenshots and videos</li>
+                                        <li>Trace viewer for debugging</li>
+                                        <li>Test isolation and cleanup</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/intro" target="_blank" class="text-indigo-600 hover:underline font-medium">Playwright Documentation</a></li>
+                                        <li><a href="https://playwright.dev/docs/writing-tests" target="_blank" class="text-indigo-600 hover:underline">Writing Tests</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=wawbt1cATsk" target="_blank" class="text-indigo-600 hover:underline">Playwright Tutorial for Beginners</a></li>
+                                        <li><a href="https://playwright.dev/docs/codegen" target="_blank" class="text-indigo-600 hover:underline">Codegen - Test Generator</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Page Object Model (POM) Pattern</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>POM design pattern principles</li>
+                                        <li>Creating page classes with TypeScript</li>
+                                        <li>Encapsulating locators and actions</li>
+                                        <li>Reusable components and base pages</li>
+                                        <li>Fluent interface pattern (method chaining)</li>
+                                        <li>Organizing page objects in project structure</li>
+                                        <li>Using fixtures with POM</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/pom" target="_blank" class="text-indigo-600 hover:underline font-medium">Playwright Page Object Model</a></li>
+                                        <li><a href="https://martinfowler.com/bliki/PageObject.html" target="_blank" class="text-indigo-600 hover:underline">Page Object Pattern (Martin Fowler)</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=Rc1USCgQNnU" target="_blank" class="text-indigo-600 hover:underline">POM with Playwright Tutorial</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Advanced E2E Testing Techniques</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Handling iframes and shadow DOM</li>
+                                        <li>File upload and download testing</li>
+                                        <li>Authentication and session management</li>
+                                        <li>Testing file uploads and downloads</li>
+                                        <li>Network interception and mocking</li>
+                                        <li>Handling dialogs and alerts</li>
+                                        <li>Multiple tabs and windows</li>
+                                        <li>Keyboard and mouse actions</li>
+                                        <li>Drag and drop interactions</li>
+                                        <li>Visual regression testing</li>
+                                        <li>Accessibility testing</li>
+                                        <li>Mobile emulation and responsive testing</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/network" target="_blank" class="text-indigo-600 hover:underline">Network Interception</a></li>
+                                        <li><a href="https://playwright.dev/docs/downloads" target="_blank" class="text-indigo-600 hover:underline">File Downloads</a></li>
+                                        <li><a href="https://playwright.dev/docs/auth" target="_blank" class="text-indigo-600 hover:underline">Authentication</a></li>
+                                        <li><a href="https://playwright.dev/docs/accessibility-testing" target="_blank" class="text-indigo-600 hover:underline">Accessibility Testing</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Test Organization & CI/CD</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Test organization and naming conventions</li>
+                                        <li>Test tags and annotations</li>
+                                        <li>Parallel execution and sharding</li>
+                                        <li>Test retries and flaky test handling</li>
+                                        <li>Configuration files (playwright.config.ts)</li>
+                                        <li>Environment-specific configurations</li>
+                                        <li>GitHub Actions integration</li>
+                                        <li>Running tests in Docker</li>
+                                        <li>Test reports and artifacts</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://playwright.dev/docs/test-configuration" target="_blank" class="text-indigo-600 hover:underline">Test Configuration</a></li>
+                                        <li><a href="https://playwright.dev/docs/test-parallel" target="_blank" class="text-indigo-600 hover:underline">Parallel Tests</a></li>
+                                        <li><a href="https://playwright.dev/docs/ci" target="_blank" class="text-indigo-600 hover:underline">Continuous Integration</a></li>
+                                        <li><a href="https://playwright.dev/docs/docker" target="_blank" class="text-indigo-600 hover:underline">Docker Setup</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Project for Phase 3 -->
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-purple-900 flex items-center">
+                        🛠️ Phase 3 Practice Project: E-Commerce Web Automation Suite
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a complete E2E test automation framework for an e-commerce website (like saucedemo.com or demo.opencart.com) using Playwright with Page Object Model.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Implement Page Object Model architecture</li>
+                            <li>Create page classes: Login, Home, Product Listing, Product Detail, Cart, Checkout</li>
+                            <li>Test user flows: Login, Search, Add to Cart, Checkout, Logout</li>
+                            <li>Use different locator strategies (role, text, CSS)</li>
+                            <li>Implement reusable fixtures for common setup</li>
+                            <li>Add cross-browser testing (Chromium, Firefox, WebKit)</li>
+                            <li>Implement authentication state management</li>
+                            <li>Create custom assertions for business logic</li>
+                            <li>Add screenshots on failure</li>
+                            <li>Generate HTML and JSON reports</li>
+                            <li>Organize tests with proper folder structure and naming</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add visual regression testing with screenshots comparison</li>
+                            <li>Implement network mocking for API responses</li>
+                            <li>Add accessibility testing checks</li>
+                            <li>Create mobile responsive tests with emulation</li>
+                            <li>Set up GitHub Actions CI/CD pipeline</li>
+                            <li>Add Allure reporting with screenshots and traces</li>
+                            <li>Implement test data management with faker.js</li>
+                            <li>Add performance monitoring (page load times)</li>
+                            <li>Create Docker setup for consistent test environment</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="phase-4" class="phase-content mb-12 hidden">
+                <div id="step-4"></div>
+                <div class="bg-white p-6 rounded-xl shadow-md">
+                    <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
+                        <span>Phase 4: Mobile Automation Testing</span>
+                        <span class="text-base font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">~6 Weeks</span>
+                    </h2>
+                    <p class="text-gray-600 mb-6">Master mobile test automation for iOS and Android applications using Appium with TypeScript. Learn to test native, hybrid, and mobile web applications.</p>
+                    <div class="space-y-4">
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Mobile Testing Fundamentals</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Mobile testing types (native, hybrid, mobile web)</li>
+                                        <li>iOS vs Android testing differences</li>
+                                        <li>Real devices vs emulators/simulators</li>
+                                        <li>Mobile app architecture basics</li>
+                                        <li>Xcode and Android Studio basics</li>
+                                        <li>Setting up iOS Simulator and Android Emulator</li>
+                                        <li>ADB (Android Debug Bridge) commands</li>
+                                        <li>Understanding app packages and bundles</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://developer.android.com/studio" target="_blank" class="text-indigo-600 hover:underline">Android Studio Setup</a></li>
+                                        <li><a href="https://developer.apple.com/xcode/" target="_blank" class="text-indigo-600 hover:underline">Xcode Setup</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=9HWK_HzOIVs" target="_blank" class="text-indigo-600 hover:underline">Mobile Testing Introduction</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Appium Setup & Configuration</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Appium architecture and components</li>
+                                        <li>Installing Appium Server and drivers</li>
+                                        <li>Setting up Appium with TypeScript</li>
+                                        <li>Desired capabilities configuration</li>
+                                        <li>Appium Inspector for element inspection</li>
+                                        <li>WebDriverIO vs Appium client</li>
+                                        <li>Connecting to real devices</li>
+                                        <li>Installing apps on devices/emulators</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://appium.io/docs/en/latest/" target="_blank" class="text-indigo-600 hover:underline font-medium">Appium Documentation</a></li>
+                                        <li><a href="https://webdriver.io/docs/gettingstarted" target="_blank" class="text-indigo-600 hover:underline">WebDriverIO Documentation</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=9cn0D_mQpXI" target="_blank" class="text-indigo-600 hover:underline">Appium Setup Tutorial</a></li>
+                                        <li><a href="https://github.com/appium/appium-inspector" target="_blank" class="text-indigo-600 hover:underline">Appium Inspector</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Mobile Element Locators & Interactions</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Locator strategies (accessibility id, XPath, class name)</li>
+                                        <li>iOS-specific locators (predicates, class chains)</li>
+                                        <li>Android-specific locators (UiAutomator2)</li>
+                                        <li>Using Appium Inspector to find elements</li>
+                                        <li>Mobile gestures (tap, swipe, scroll, pinch, zoom)</li>
+                                        <li>Handling native alerts and permissions</li>
+                                        <li>Text input and keyboard handling</li>
+                                        <li>Working with native mobile controls</li>
+                                        <li>Context switching (native vs webview)</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://appium.io/docs/en/latest/guides/locator-strategies/" target="_blank" class="text-indigo-600 hover:underline">Appium Locator Strategies</a></li>
+                                        <li><a href="https://appium.io/docs/en/latest/guides/gestures/" target="_blank" class="text-indigo-600 hover:underline">Mobile Gestures</a></li>
+                                        <li><a href="https://webdriver.io/docs/selectors/" target="_blank" class="text-indigo-600 hover:underline">WebDriverIO Selectors</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Advanced Mobile Testing</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Page Object Model for mobile apps</li>
+                                        <li>Testing hybrid apps (native + webview)</li>
+                                        <li>Deep linking and app navigation</li>
+                                        <li>Camera and photo library testing</li>
+                                        <li>Push notification testing</li>
+                                        <li>Biometric authentication (Touch ID, Face ID)</li>
+                                        <li>App background/foreground testing</li>
+                                        <li>Network conditions and airplane mode</li>
+                                        <li>Location/GPS testing</li>
+                                        <li>Device orientation (portrait/landscape)</li>
+                                        <li>Screenshot comparison for visual testing</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://appium.io/docs/en/latest/guides/context/" target="_blank" class="text-indigo-600 hover:underline">Hybrid App Testing</a></li>
+                                        <li><a href="https://appium.io/docs/en/latest/guides/settings/" target="_blank" class="text-indigo-600 hover:underline">Device Settings</a></li>
+                                        <li><a href="https://webdriver.io/docs/pageobjects/" target="_blank" class="text-indigo-600 hover:underline">Page Objects with WebDriverIO</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item border rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
+                                <h3 class="font-semibold text-lg">Cloud Testing & CI/CD</h3>
+                            </div>
+                            <div class="accordion-content">
+                                <div class="p-4 border-t">
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Cloud testing platforms (BrowserStack, Sauce Labs, AWS Device Farm)</li>
+                                        <li>Running tests on real devices in cloud</li>
+                                        <li>Parallel execution across devices</li>
+                                        <li>CI/CD integration for mobile tests</li>
+                                        <li>Test reporting and analytics</li>
+                                        <li>Performance testing on mobile</li>
+                                        <li>Battery and resource usage testing</li>
+                                        <li>Cross-device testing strategies</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-indigo-700">Resources:</p>
+                                    <ul class="list-disc list-inside space-y-1">
+                                        <li><a href="https://www.browserstack.com/app-automate" target="_blank" class="text-indigo-600 hover:underline">BrowserStack App Automate</a></li>
+                                        <li><a href="https://saucelabs.com/platform/mobile-testing" target="_blank" class="text-indigo-600 hover:underline">Sauce Labs Mobile Testing</a></li>
+                                        <li><a href="https://aws.amazon.com/device-farm/" target="_blank" class="text-indigo-600 hover:underline">AWS Device Farm</a></li>
+                                        <li><a href="https://webdriver.io/docs/cloudservices/" target="_blank" class="text-indigo-600 hover:underline">WebDriverIO Cloud Services</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Practice Project for Phase 4 -->
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-purple-900 flex items-center">
+                        🛠️ Phase 4 Practice Project: Mobile Banking App Test Suite
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a comprehensive mobile test automation framework for a demo banking app using Appium, WebDriverIO, and TypeScript with Page Object Model.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Set up Appium with WebDriverIO and TypeScript</li>
+                            <li>Configure for both iOS and Android platforms</li>
+                            <li>Implement Page Object Model for mobile screens</li>
+                            <li>Test login flow with biometric authentication simulation</li>
+                            <li>Test core features: View balance, Transfer money, Transaction history</li>
+                            <li>Implement mobile gestures (swipe, scroll, tap)</li>
+                            <li>Handle native alerts and dialogs</li>
+                            <li>Add screenshot capture on test failure</li>
+                            <li>Create reusable helper functions for common actions</li>
+                            <li>Organize tests with proper folder structure</li>
+                            <li>Generate test reports (Allure or HTML)</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Test both native and hybrid app sections</li>
+                            <li>Add deep linking tests</li>
+                            <li>Implement visual regression testing for mobile UI</li>
+                            <li>Test app behavior in background/foreground</li>
+                            <li>Add network condition testing (offline mode)</li>
+                            <li>Test device orientation changes</li>
+                            <li>Integrate with BrowserStack or Sauce Labs</li>
+                            <li>Set up parallel execution on multiple devices</li>
+                            <li>Create GitHub Actions pipeline for mobile tests</li>
+                            <li>Add performance metrics collection</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- RECOMMENDED TECH STACK -->
+        <section class="mt-16 mb-12">
+            <div class="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-4 text-gray-900">🚀 Tech Stack Overview</h2>
+                <p class="text-gray-700 mb-6">After completing this learning path, here's your production-ready QC automation tech stack:</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white p-5 rounded-lg shadow-md border border-indigo-100">
+                        <h3 class="text-xl font-bold mb-3 text-indigo-700">🌐 API & Web Testing</h3>
+                        <ul class="space-y-2">
+                            <li><strong>Language:</strong> <mark class="bg-yellow-100 px-1">TypeScript</mark></li>
+                            <li><strong>Framework:</strong> <mark class="bg-yellow-100 px-1">Playwright</mark> with Playwright Test</li>
+                            <li><strong>API Testing:</strong> Playwright Request API</li>
+                            <li><strong>E2E Testing:</strong> Playwright Browser Automation</li>
+                            <li><strong>Pattern:</strong> <mark class="bg-yellow-100 px-1">Page Object Model (POM)</mark></li>
+                            <li><strong>Validation:</strong> Zod/AJV for schema validation</li>
+                            <li><strong>Reporting:</strong> Playwright HTML Reporter, Allure</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-white p-5 rounded-lg shadow-md border border-indigo-100">
+                        <h3 class="text-xl font-bold mb-3 text-indigo-700">📱 Mobile Testing</h3>
+                        <ul class="space-y-2">
+                            <li><strong>Language:</strong> <mark class="bg-yellow-100 px-1">TypeScript</mark></li>
+                            <li><strong>Framework:</strong> <mark class="bg-yellow-100 px-1">Appium</mark> with WebDriverIO</li>
+                            <li><strong>Platforms:</strong> iOS & Android (native, hybrid, web)</li>
+                            <li><strong>Pattern:</strong> <mark class="bg-yellow-100 px-1">Page Object Model (POM)</mark></li>
+                            <li><strong>Cloud Testing:</strong> BrowserStack, Sauce Labs</li>
+                            <li><strong>Reporting:</strong> Allure, HTML reports</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stepperItems = document.querySelectorAll('.step-item');
+            const phaseContents = document.querySelectorAll('.phase-content');
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+
+            function setActiveStep(targetId) {
+                stepperItems.forEach((item, index) => {
+                    const line = item.previousElementSibling;
+
+                    if (item.dataset.target === targetId) {
+                        item.classList.add('active');
+                        if(line) line.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                         if(line) line.classList.remove('active');
+                    }
+
+                    if (line && Array.from(stepperItems).indexOf(item) <= Array.from(stepperItems).findIndex(i => i.dataset.target === targetId)) {
+                        line.classList.add('active');
+                    } else if (line) {
+                         line.classList.remove('active');
+                    }
+                });
+
+                phaseContents.forEach(content => {
+                    if (content.id === targetId) {
+                        content.classList.remove('hidden');
+                        const accordions = content.querySelectorAll('.accordion-header');
+                        accordions.forEach(header => {
+                            const accordionContent = header.nextElementSibling;
+                            header.classList.add('open');
+                            accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+                        });
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            }
+
+            stepperItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    setActiveStep(item.dataset.target);
+                });
+            });
+
+            accordionHeaders.forEach(header => {
+                const content = header.nextElementSibling;
+                header.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + "px";
+                header.style.cursor = 'default';
+            });
+
+            function handleHashChange() {
+                const hash = window.location.hash;
+                const stepMatch = hash.match(/#step-(\d+)/);
+                if (stepMatch) {
+                    const phaseId = `phase-${stepMatch[1]}`;
+                    setActiveStep(phaseId);
+                } else {
+                    setActiveStep('phase-1');
+                }
+            }
+
+            window.addEventListener('hashchange', handleHashChange);
+            handleHashChange();
+        });
+    </script>
+
+</body>
+</html>
