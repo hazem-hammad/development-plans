@@ -16,259 +16,532 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
         }
+
+        .step-item {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .step-item:hover .step-circle {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
         .step-item.active .step-circle {
-            background-color: #10B981;
-            color: white;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white !important;
             border-color: #10B981;
+            border-width: 3px;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+            transform: scale(1.1);
         }
+
+        .step-item.completed .step-circle {
+            background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+            color: transparent !important; /* Hide the number */
+            border-color: #3B82F6;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .step-item.completed .step-circle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
+            animation: shimmer 2s infinite;
+            z-index: 1;
+        }
+
+        .step-item.completed .step-circle::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: 900;
+            color: white;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.4);
+            animation: checkPop 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 2;
+        }
+
+        @keyframes checkPop {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.3);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 0.5;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        /* Glowing ring effect for completed steps */
+        .step-item.completed .step-circle {
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% {
+                box-shadow:
+                    0 0 10px rgba(59, 130, 246, 0.4),
+                    0 0 20px rgba(59, 130, 246, 0.3),
+                    0 0 30px rgba(59, 130, 246, 0.2);
+            }
+            50% {
+                box-shadow:
+                    0 0 20px rgba(59, 130, 246, 0.6),
+                    0 0 30px rgba(59, 130, 246, 0.5),
+                    0 0 40px rgba(59, 130, 246, 0.4);
+            }
+        }
+
         .step-item.active .step-line {
-            background-color: #10B981;
+            background: linear-gradient(to right, #10B981, #059669);
+            height: 4px !important;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.5);
         }
+
+        .step-item.completed .step-line {
+            background: linear-gradient(to right, #3B82F6, #1D4ED8);
+            height: 4px !important;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+        }
+
         .step-item.active .step-label {
-            color: #10B981;
-            font-weight: 600;
+            color: #FFFFFF !important;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(16, 185, 129, 0.8);
+            transform: scale(1.05);
         }
+
+        .step-item.completed .step-label {
+            color: #FFFFFF !important;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(59, 130, 246, 0.8);
+        }
+
+        .step-circle {
+            transition: all 0.3s ease;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 16px rgba(16, 185, 129, 0.5);
+            }
+            50% {
+                box-shadow: 0 4px 24px rgba(16, 185, 129, 0.8);
+            }
+        }
+
         .accordion-content {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.3s ease-in-out; /* Smooth transition for opening/closing */
+            transition: max-height 0.3s ease-in-out;
         }
-        .accordion-header.open .accordion-icon {
-            transform: rotate(180deg);
+
+        .accordion-header {
+            transition: all 0.2s ease;
+            cursor: default !important;
         }
-        /* Style for the canvas to ensure responsiveness */
+
+        .accordion-header.open {
+            background-color: #d1fae5 !important;
+        }
+
+        .accordion-icon {
+            display: none;
+        }
+
+
+        @keyframes checkboxPop {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .topic-item {
+            transition: all 0.2s ease;
+            padding: 8px;
+            border-radius: 6px;
+        }
+
+        .topic-item:hover {
+            background-color: #f0fdf4;
+        }
+
+        .topic-item.completed {
+            background-color: #d1fae5;
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+
+        /* Canvas chart */
         #timeCommitmentChart {
             display: block;
             width: 100% !important;
             height: 100% !important;
         }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Card hover effects */
+        .phase-content > div {
+            transition: all 0.3s ease;
+        }
+
+        .phase-content > div:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Resource links with icons */
+        .resource-link {
+            transition: all 0.2s ease;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .resource-link:hover {
+            background-color: #d1fae5;
+            transform: translateX(4px);
+        }
+
+
+        /* Floating Chat Widget */
+        .chat-widget-button {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .chat-widget-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.6);
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .chat-widget-container {
+            position: fixed;
+            bottom: 100px;
+            right: 24px;
+            width: 380px;
+            max-width: calc(100vw - 48px);
+            max-height: 600px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            opacity: 0;
+            transform: scale(0.8) translateY(20px);
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .chat-widget-container.open {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: all;
+        }
+
+        .chat-widget-header {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .chat-widget-body {
+            padding: 20px;
+            max-height: 450px;
+            overflow-y: auto;
+        }
+
+        .chat-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .close-chat-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-chat-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
     </style>
 </head>
 <body class="text-gray-800">
 
     <div class="container mx-auto p-4 md:p-8">
         <header class="text-center mb-10">
-            <h1 class="text-4xl md:text-5xl font-bold text-gray-900">The Full-Stack React Developer Path</h1>
-            <p class="mt-3 text-lg text-gray-600">Your interactive roadmap to mastering Next.js and React Native.</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">🚀 The Full-Stack React Developer Path</h1>
+            <p class="mt-3 text-lg text-white drop-shadow">Your interactive roadmap to mastering Next.js and React Native.</p>
         </header>
+
 
         <nav id="stepper-nav" class="mb-12">
             <div class="flex items-center justify-between">
-                <div class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-1">
-                    <div class="step-circle w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center font-bold text-lg transition-colors duration-300">1</div>
-                    <p class="step-label text-center mt-2 text-sm font-medium text-gray-500 transition-colors duration-300">Fundamentals</p>
-                </div>
-                <div class="step-line h-1 flex-1 bg-gray-300 transition-colors duration-300"></div>
-                <div class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-2">
-                    <div class="step-circle w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center font-bold text-lg transition-colors duration-300">2</div>
-                    <p class="step-label text-center mt-2 text-sm font-medium text-gray-500 transition-colors duration-300">React Core</p>
-                </div>
-                <div class="step-line h-1 flex-1 bg-gray-300 transition-colors duration-300"></div>
-                <div class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-3">
-                    <div class="step-circle w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center font-bold text-lg transition-colors duration-300">3</div>
-                    <p class="step-label text-center mt-2 text-sm font-medium text-gray-500 transition-colors duration-300">Next.js Web</p>
-                </div>
-                <div class="step-line h-1 flex-1 bg-gray-300 transition-colors duration-300"></div>
-                <div class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-4">
-                    <div class="step-circle w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center font-bold text-lg transition-colors duration-300">4</div>
-                    <p class="step-label text-center mt-2 text-sm font-medium text-gray-500 transition-colors duration-300">React Native</p>
-                </div>
-                <div class="step-line h-1 flex-1 bg-gray-300 transition-colors duration-300"></div>
-                <div class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-5">
-                    <div class="step-circle w-10 h-10 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center font-bold text-lg transition-colors duration-300">5</div>
-                    <p class="step-label text-center mt-2 text-sm font-medium text-gray-500 transition-colors duration-300">Laravel Integration</p>
-                </div>
+                <a href="#step-1" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-1">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">1</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">Fundamentals</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-2" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-2">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">2</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">React Core</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-3" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-3">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">3</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">Next.js Web</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-4" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-4">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">4</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">React Native</p>
+                </a>
+                <div class="step-line h-1.5 flex-1 bg-white bg-opacity-40 transition-colors duration-300"></div>
+                <a href="#step-5" class="step-item flex-1 flex flex-col items-center cursor-pointer" data-target="phase-5">
+                    <div class="step-circle w-12 h-12 rounded-full bg-white border-3 border-gray-400 flex items-center justify-center font-bold text-xl transition-colors duration-300 shadow-lg text-gray-700">5</div>
+                    <p class="step-label text-center mt-2 text-sm font-semibold text-white transition-colors duration-300 drop-shadow-md">Laravel Integration</p>
+                </a>
             </div>
         </nav>
 
         <main id="phases-container">
-            <!-- GEMINI API FEATURE SECTION START -->
-            <section class="mb-12">
-                <div class="bg-emerald-50 border-2 border-emerald-200 p-6 rounded-xl shadow-lg">
-                    <h2 class="text-2xl font-bold mb-4 text-emerald-800 flex items-center">
-                        ✨ AI Concept Explainer
-                    </h2>
-                    <p class="text-emerald-700 mb-4">Stuck on a term like "Zustand" or "Server Actions"? Get an instant, developer-focused explanation here!</p>
-                    
-                    <div class="flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-3">
-                        <input type="text" id="concept-input" placeholder="e.g., What is 'Prop Drilling'?" class="flex-grow p-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150">
-                        <button id="explain-button" class="bg-emerald-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition duration-200 shadow-md flex items-center justify-center">
-                            ✨ Explain Concept
-                        </button>
-                    </div>
-                    
-                    <div id="explanation-result" class="mt-4 p-4 bg-white border border-emerald-300 rounded-lg hidden">
-                        <p id="explanation-text" class="text-gray-700"></p>
-                    </div>
-                    
-                    <div id="explanation-loading" class="mt-4 p-4 bg-white border border-emerald-300 rounded-lg hidden flex items-center justify-center text-emerald-600 font-medium">
-                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Generating explanation...
-                    </div>
-                    <p id="error-message" class="text-red-500 mt-2 hidden"></p>
-                </div>
-            </section>
-            <!-- GEMINI API FEATURE SECTION END -->
 
             <section id="phase-1" class="phase-content mb-12">
+                <div id="step-1"></div>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
                         <span>Phase 1: Core Web Fundamentals</span>
                         <span class="text-base font-medium bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">~4 Weeks</span>
                     </h2>
-                    <p class="text-gray-600 mb-6">Every great developer starts with a strong foundation. This phase covers the essential building blocks of the web. Do not skip these, even if you feel you know them. A deep understanding here will make learning React much easier. <span class="font-semibold text-emerald-700">Research shows 70% of beginner React struggles stem from weak JavaScript foundations, not React itself.</span></p>
                     <div class="space-y-4">
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">HTML & CSS</h3>
-                                <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Learn the structure of web pages with HTML5 and how to style them with CSS3.</strong> Master semantic HTML including <mark class="bg-yellow-100 px-1">header, nav, main, article, section, and footer elements</mark>. Understanding proper HTML structure is critical because React's JSX syntax directly extends HTML concepts.</p>
-                                    <p class="mb-3"><strong>CSS Focus Areas:</strong> <mark class="bg-yellow-100 px-1">CSS Flexbox and Grid</mark> are non-negotiable skills. Flexbox handles one-dimensional layouts (rows or columns), while Grid excels at two-dimensional layouts. Also learn the box model, positioning systems (relative, absolute, fixed, sticky), CSS specificity rules, and <mark class="bg-yellow-100 px-1">responsive design with mobile-first media queries</mark>.</p>
-                                    <p class="mb-3"><strong>Common Struggles:</strong> Confusion about when to use Flexbox vs Grid (use Flexbox for navigation bars, card layouts, centering; use Grid for page layouts and complex 2D designs), misunderstanding CSS specificity, and creating effective responsive breakpoints.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Build a personal portfolio page from scratch. Make it responsive for mobile and desktop screens using Flexbox and Grid. Include a navigation bar, project cards in a grid layout, and a contact form.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Semantic HTML5 elements</li>
+                                        <li>CSS Flexbox</li>
+                                        <li>CSS Grid</li>
+                                        <li>Box model & positioning</li>
+                                        <li>Responsive design with media queries</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://www.freecodecamp.org/learn/2022/responsive-web-design/" target="_blank" class="text-emerald-600 hover:underline font-medium">FreeCodeCamp Responsive Web Design Certification</a> - Hands-on practice with real projects</li>
-                                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank" class="text-emerald-600 hover:underline">MDN Web Docs - HTML</a> - Comprehensive reference</li>
-                                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank" class="text-emerald-600 hover:underline">MDN Web Docs - CSS</a> - Comprehensive reference</li>
-                                        <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" class="text-emerald-600 hover:underline">A Complete Guide to Flexbox</a> - Visual guide</li>
-                                        <li><a href="https://css-tricks.com/snippets/css/complete-guide-grid/" target="_blank" class="text-emerald-600 hover:underline">A Complete Guide to Grid</a> - Visual guide</li>
+                                        <li><a href="https://codewithmosh.com/p/the-ultimate-html-css-part2" target="_blank" class="text-emerald-600 hover:underline">The Ultimate HTML/CSS Part 2 (Code with Mosh)</a></li>
+                                        <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/" target="_blank" class="text-emerald-600 hover:underline">A Complete Guide to Flexbox</a></li>
+                                        <li><a href="https://flexboxfroggy.com/" target="_blank" class="text-emerald-600 hover:underline">Flexbox Froggy</a> - Interactive practice</li>
+                                        <li><a href="https://css-tricks.com/snippets/css/complete-guide-grid/" target="_blank" class="text-emerald-600 hover:underline">A Complete Guide to Grid</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">JavaScript Fundamentals & ES6+</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong class="text-red-600">⚠️ MOST CRITICAL PHASE - Do Not Rush!</strong> Modern JavaScript forms the foundation for everything in React. This is your most important learning phase.</p>
-                                    <p class="mb-3"><strong>Essential ES6+ Features You Must Master:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Variables: let and const (block scope)</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Arrow functions and their unique 'this' binding</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Template literals for string interpolation</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Destructuring for arrays and objects</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Spread and rest operators (...)</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Promises and async/await for asynchronous operations</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Array methods: map(), filter(), reduce(), find(), forEach()</mark></li>
-                                        <li>ES6 modules with import/export</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>let and const (block scope)</li>
+                                        <li>Arrow functions</li>
+                                        <li>Template literals</li>
+                                        <li>Destructuring</li>
+                                        <li>Spread and rest operators</li>
+                                        <li>Promises and async/await</li>
+                                        <li>Array methods (map, filter, reduce, find)</li>
+                                        <li>ES6 modules (import/export)</li>
+                                        <li>Closures and scope</li>
+                                        <li>Higher-order functions</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Advanced Concepts That Make React Easier:</strong> Closures and scope chains, the 'this' keyword and context binding, higher-order functions (functions returning functions), understanding value vs reference types (primitives vs objects), and the event loop for asynchronous JavaScript.</p>
-                                    <p class="mb-3"><strong class="text-emerald-700">💡 Pro Tip:</strong> Build these practice projects with vanilla JavaScript before moving to React. They cement your understanding of state management, event handling, and async operations—all critical for React.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Projects:</p>
-                                    <ul class="list-decimal list-inside space-y-1 mb-3 ml-4">
-                                        <li>Calculator with all basic arithmetic operations</li>
-                                        <li>To-Do List with local storage persistence (add, edit, delete, mark complete)</li>
-                                        <li>Weather app that fetches from OpenWeather API using async/await</li>
-                                    </ul>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://javascript.info/" target="_blank" class="text-emerald-600 hover:underline font-medium">JavaScript.info</a> - Most comprehensive free JavaScript course covering basics through advanced topics</li>
-                                        <li><a href="https://eloquentjavascript.net/" target="_blank" class="text-emerald-600 hover:underline">Eloquent JavaScript</a> - Free online book with excellent explanations and exercises</li>
-                                        <li><a href="https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/" target="_blank" class="text-emerald-600 hover:underline">FreeCodeCamp JavaScript Course</a> - 300+ challenges and hands-on practice</li>
-                                        <li><a href="https://www.youtube.com/@WebDevSimplified" target="_blank" class="text-emerald-600 hover:underline">Web Dev Simplified (YouTube)</a> - Clear, concise JavaScript tutorials</li>
-                                        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" class="text-emerald-600 hover:underline">MDN Web Docs - JavaScript</a> - Reference documentation</li>
+                                        <li><a href="https://www.youtube.com/playlist?list=PLtxOBbrOOPH662qi7iHkyH4_TY3wMslp2" target="_blank" class="text-emerald-600 hover:underline font-medium">ES6 Tutorial (YouTube Playlist - Recommended)</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=NCwa_xi0Uuc" target="_blank" class="text-emerald-600 hover:underline">JavaScript ES6 Tutorial (YouTube)</a></li>
+                                        <li><a href="https://javascript.info/" target="_blank" class="text-emerald-600 hover:underline">JavaScript.info</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">TypeScript Basics</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>TypeScript is the industry standard for React development in 2025.</strong> Major companies including Microsoft, Google, and Meta mandate TypeScript for production code. Benefits: <strong class="text-emerald-700">35-40% improvement in catching errors before runtime</strong>, better IDE support with autocomplete, improved refactoring capabilities, and enhanced team collaboration.</p>
-                                    <p class="mb-3"><strong>Core TypeScript Concepts to Master:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Basic types: string, number, boolean, array, object</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Type annotations for function parameters and return types</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Interfaces for defining object shapes</mark></li>
-                                        <li><mark class="bg-yellow-100 px-1">Type aliases for reusable type definitions</mark></li>
-                                        <li>Union types for multiple possible types</li>
-                                        <li>Generics for reusable components with type flexibility</li>
-                                        <li>Type inference (TypeScript automatically deduces types)</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Basic types (string, number, boolean, array, object)</li>
+                                        <li>Type annotations</li>
+                                        <li>Interfaces</li>
+                                        <li>Type aliases</li>
+                                        <li>Union types</li>
+                                        <li>Generics</li>
+                                        <li>Typing React components and hooks</li>
                                     </ul>
-                                    <p class="mb-3"><strong>React-Specific TypeScript:</strong> Typing React components with Props and State interfaces, typing hooks (useState, useEffect, useRef), event handler typing (React.MouseEvent, React.FormEvent), and Context API with TypeScript.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Refactor your JavaScript To-Do List to TypeScript. Create interfaces for Task objects with properties like id (string), text (string), completed (boolean), and createdAt (Date).</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://www.typescriptlang.org/docs/handbook/intro.html" target="_blank" class="text-emerald-600 hover:underline font-medium">Official TypeScript Handbook</a> - Comprehensive documentation</li>
-                                        <li><a href="https://react.dev/learn/typescript" target="_blank" class="text-emerald-600 hover:underline font-medium">React Official TypeScript Documentation</a> - React-specific patterns</li>
-                                        <li><a href="https://www.totaltypescript.com/tutorials/beginners-typescript" target="_blank" class="text-emerald-600 hover:underline">Total TypeScript Beginner's Tutorial</a> - Interactive learning</li>
-                                        <li><a href="https://www.youtube.com/@mattpocockuk" target="_blank" class="text-emerald-600 hover:underline">Matt Pocock (YouTube)</a> - Advanced TypeScript tips</li>
-                                        <li><a href="https://www.youtube.com/watch?v=gp5H0Vw39yw" target="_blank" class="text-emerald-600 hover:underline">FreeCodeCamp TypeScript Full Course</a> - Complete video course</li>
+                                        <li><a href="https://www.totaltypescript.com/tutorials/beginners-typescript" target="_blank" class="text-emerald-600 hover:underline">Total TypeScript Beginner's Tutorial</a></li>
+                                        <li><a href="https://www.youtube.com/@mattpocockuk" target="_blank" class="text-emerald-600 hover:underline">Matt Pocock (YouTube)</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=gp5H0Vw39yw" target="_blank" class="text-emerald-600 hover:underline">FreeCodeCamp TypeScript Full Course</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Tailwind CSS</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Tailwind CSS is the industry-standard utility-first CSS framework for 2025.</strong> Learning it now means you can use it consistently across all your React projects (Next.js web apps and React Native mobile apps with NativeWind).</p>
-                                    <p class="mb-3"><strong>Why Learn Tailwind Now:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Utility-first approach</mark> - Build designs directly in HTML/JSX without writing custom CSS</li>
-                                        <li><mark class="bg-yellow-100 px-1">Responsive design</mark> - Intuitive breakpoint prefixes (sm:, md:, lg:, xl:, 2xl:)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Design consistency</mark> - Built-in design system with spacing, colors, typography</li>
-                                        <li>No naming conflicts or specificity issues</li>
-                                        <li>Works seamlessly with React, Next.js, and React Native (via NativeWind)</li>
-                                        <li>Extremely small production builds (only used classes included)</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Layout utilities (Flexbox, Grid)</li>
+                                        <li>Spacing (margin, padding, gap)</li>
+                                        <li>Typography</li>
+                                        <li>Colors and backgrounds</li>
+                                        <li>Responsive modifiers (sm:, md:, lg:, xl:)</li>
+                                        <li>State variants (hover:, focus:, active:)</li>
+                                        <li>Dark mode</li>
+                                        <li>Custom configuration</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Core Concepts to Master:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Layout utilities:</mark> Flexbox (flex, justify-*, items-*), Grid (grid, grid-cols-*)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Spacing:</mark> Margin (m-*), Padding (p-*), Gap (gap-*)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Typography:</mark> Text size, weight, color, alignment</li>
-                                        <li><mark class="bg-yellow-100 px-1">Colors:</mark> Background, text, border colors with opacity</li>
-                                        <li><mark class="bg-yellow-100 px-1">Responsive modifiers:</mark> sm:, md:, lg:, xl: prefixes</li>
-                                        <li><mark class="bg-yellow-100 px-1">State variants:</mark> hover:, focus:, active:, disabled:</li>
-                                        <li>Dark mode with dark: prefix</li>
-                                        <li>Custom configuration in tailwind.config.js</li>
-                                    </ul>
-                                    <p class="mb-3"><strong>Installation & Setup:</strong> Install with npm: <code>npm install -D tailwindcss</code>, initialize config: <code>npx tailwindcss init</code>, configure content paths in tailwind.config.js, add Tailwind directives to your CSS file, and install VS Code extension "Tailwind CSS IntelliSense" for autocomplete.</p>
-                                    <p class="mb-3"><strong>💡 Pro Tip:</strong> Focus on learning the utility patterns rather than memorizing class names. The VS Code IntelliSense extension will provide autocomplete suggestions as you type.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Projects:</p>
-                                    <ul class="list-decimal list-inside space-y-1 mb-3 ml-4">
-                                        <li>Rebuild your portfolio page using only Tailwind CSS (no custom CSS)</li>
-                                        <li>Create a responsive landing page with hero section, features grid, and footer</li>
-                                        <li>Build a card component with hover effects and dark mode support</li>
-                                        <li>Design a form with proper spacing, validation states, and focus styles</li>
-                                    </ul>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://tailwindcss.com/docs" target="_blank" class="text-emerald-600 hover:underline font-medium">Official Tailwind CSS Documentation</a> - Comprehensive reference with examples</li>
-                                        <li><a href="https://www.youtube.com/watch?v=pfaSUYaSgPo" target="_blank" class="text-emerald-600 hover:underline font-medium">Tailwind CSS Full Course (YouTube)</a> - 3+ hour beginner course</li>
-                                        <li><a href="https://tailwindcss.com/docs/utility-first" target="_blank" class="text-emerald-600 hover:underline">Utility-First Fundamentals</a> - Core philosophy explained</li>
-                                        <li><a href="https://tailwindui.com/components" target="_blank" class="text-emerald-600 hover:underline">Tailwind UI Components</a> - Free component examples</li>
-                                        <li><a href="https://play.tailwindcss.com/" target="_blank" class="text-emerald-600 hover:underline">Tailwind Play</a> - Online playground for practice</li>
+                                        <li><a href="https://www.youtube.com/watch?v=6biMWgD6_JY" target="_blank" class="text-emerald-600 hover:underline font-medium">Tailwind CSS Tutorial (YouTube)</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=H_kSd4kn0E8" target="_blank" class="text-emerald-600 hover:underline font-medium">Tailwind CSS Course (YouTube)</a></li>
+                                        <li><a href="https://play.tailwindcss.com/" target="_blank" class="text-emerald-600 hover:underline">Tailwind Play</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Practice Project for Phase 1 -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-blue-900 flex items-center">
+                        🛠️ Phase 1 Practice Project: Portfolio Landing Page
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a responsive personal portfolio landing page to demonstrate your HTML, CSS, JavaScript, TypeScript, and Tailwind skills.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Semantic HTML5 structure with header, main sections, and footer</li>
+                            <li>Fully responsive design using Tailwind CSS (mobile-first approach)</li>
+                            <li>Use Flexbox and Grid for layout</li>
+                            <li>Dark mode toggle implemented with vanilla JavaScript/TypeScript</li>
+                            <li>Smooth scroll navigation between sections</li>
+                            <li>Interactive project cards with hover effects</li>
+                            <li>Contact form with basic JavaScript validation</li>
+                            <li>Use ES6+ features: arrow functions, destructuring, template literals, modules</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add animations using Tailwind's animation utilities</li>
+                            <li>Implement a working theme switcher that persists in localStorage</li>
+                            <li>Create a mobile hamburger menu with smooth transitions</li>
+                            <li>Add TypeScript types for all functions and data structures</li>
+                        </ul>
+                    </div>
+                </div>
             </section>
 
             <section id="phase-2" class="phase-content mb-12 hidden">
+                <div id="step-2"></div>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
                         <span>Phase 2: React Core Concepts</span>
@@ -277,106 +550,119 @@
                     <p class="text-gray-600 mb-6">Now you're ready to learn React. This phase is all about understanding how React works, its component-based architecture, and how to manage application state and side effects.</p>
                     <div class="space-y-4">
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">React Fundamentals (Components, JSX, Props)</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>With strong JavaScript and TypeScript foundations, React becomes much easier to learn.</strong> React is a JavaScript library for building user interfaces through reusable components that manage their own state.</p>
-                                    <p class="mb-3"><strong>Critical JSX Rules to Master:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">All tags must close</mark> (use &lt;br /&gt; not &lt;br&gt;)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Elements must have a single parent</mark> (use fragments &lt;&gt;...&lt;/&gt; if you don't want an extra div)</li>
-                                        <li>Embed JavaScript expressions with curly braces {}</li>
-                                        <li>Use className instead of class, htmlFor instead of for</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Component-based architecture</li>
+                                        <li>JSX syntax and rules</li>
+                                        <li>Props and data flow</li>
+                                        <li>Conditional rendering</li>
+                                        <li>List rendering with .map()</li>
+                                        <li>Fragments</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Component Fundamentals:</strong> Functional components are JavaScript functions that return JSX. They use PascalCase naming and represent the modern standard—<span class="text-red-600">class components are legacy</span>. Components compose and nest to build complex UIs from simple building blocks.</p>
-                                    <p class="mb-3"><strong>Conditional Rendering & Lists:</strong> Use ternary operators (condition ? true : false), logical AND (condition && &lt;Component /&gt;), and early returns. List rendering uses .map() to transform arrays into elements—<mark class="bg-yellow-100 px-1">each element requires a unique key prop</mark> for React's reconciliation algorithm.</p>
-                                    <p class="mb-3"><strong>Common Mistakes:</strong> Forgetting to close tags, not wrapping multiple elements in a parent, missing keys in lists causing rendering bugs, using 'class' instead of 'className'.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Build a product card component that displays an image, title, price, and description. Practice conditional rendering by showing a "Sale" badge when on sale. Render a list of products using .map() with proper keys.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://react.dev/learn" target="_blank" class="text-emerald-600 hover:underline font-medium">Official React Documentation (react.dev)</a> - 600+ interactive examples, completely rewritten for modern React</li>
-                                        <li><a href="https://www.freecodecamp.org/learn/front-end-development-libraries/" target="_blank" class="text-emerald-600 hover:underline">FreeCodeCamp Front End Libraries Certification</a> - Includes React projects</li>
-                                        <li><a href="https://scrimba.com/learn/learnreact" target="_blank" class="text-emerald-600 hover:underline">Scrimba Learn React Course</a> - 140+ interactive coding challenges with 8 projects</li>
-                                        <li><a href="https://www.youtube.com/@WebDevSimplified" target="_blank" class="text-emerald-600 hover:underline">Web Dev Simplified (YouTube)</a> - Concise focused tutorials</li>
-                                        <li><a href="https://www.youtube.com/@NetNinja" target="_blank" class="text-emerald-600 hover:underline">Net Ninja (YouTube)</a> - Beginner-friendly explanations</li>
+                                        <li><a href="https://members.codewithmosh.com/courses/enrolled/2037633" target="_blank" class="text-emerald-600 hover:underline">React 18 for Beginners (Code with Mosh)</a></li>
+                                        <li><a href="https://members.codewithmosh.com/courses/enrolled/2074069" target="_blank" class="text-emerald-600 hover:underline">The Ultimate React Course (Code with Mosh)</a></li>
+                                        <li><a href="https://react.dev/learn" target="_blank" class="text-emerald-600 hover:underline">Official React Documentation</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">State and Hooks (useState, useEffect)</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>State is data that changes over time within a component.</strong> The useState hook declares state variables and returns the current value and a setter function.</p>
-                                    <p class="mb-3"><strong>Critical Concepts About State:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">State updates are asynchronous</mark> (don't expect immediate changes)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Always update state immutably</mark> (never mutate directly)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Use functional updates when new state depends on previous state</mark>: setCount(prev => prev + 1)</li>
-                                        <li>Treat state as a snapshot—the state value doesn't change within the current render</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>useState hook and state management</li>
+                                        <li>Immutable state updates</li>
+                                        <li>useEffect hook for side effects</li>
+                                        <li>Dependency arrays</li>
+                                        <li>Cleanup functions</li>
+                                        <li>Functional updates</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Common Mistakes:</strong> Mutating state directly (array.push() instead of setArray([...array, item])), not using functional updates when new state depends on old state, reading state immediately after setting it (state is asynchronous).</p>
-                                    <p class="mb-3"><strong>useEffect for Side Effects:</strong> The useEffect hook runs side effects after render. Side effects include data fetching, subscriptions, manual DOM manipulation, event listeners, and timers.</p>
-                                    <p class="mb-3"><strong>Dependency Array Mechanics:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Empty array []</mark> - runs once on mount only</li>
-                                        <li><mark class="bg-yellow-100 px-1">No array</mark> - runs after every render (usually not desired)</li>
-                                        <li><mark class="bg-yellow-100 px-1">[dep1, dep2]</mark> - runs when dependencies change</li>
-                                        <li><mark class="bg-yellow-100 px-1">Cleanup function</mark> - returned from useEffect, runs before unmount or before effect runs again</li>
-                                    </ul>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Projects:</p>
-                                    <ul class="list-decimal list-inside space-y-1 mb-3 ml-4">
-                                        <li>Counter with increment, decrement, and reset buttons</li>
-                                        <li>Todo list with add, delete, and toggle complete functionality</li>
-                                        <li>Simple form with controlled inputs</li>
-                                        <li>Weather app that fetches data from OpenWeather API when city changes</li>
-                                    </ul>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://react.dev/learn/managing-state" target="_blank" class="text-emerald-600 hover:underline font-medium">React Docs - Managing State</a> - Comprehensive state management guide</li>
-                                        <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank" class="text-emerald-600 hover:underline font-medium">React Docs - Synchronizing with Effects</a> - Complete useEffect guide</li>
-                                        <li><a href="https://react.dev/reference/react/hooks" target="_blank" class="text-emerald-600 hover:underline">React Hooks API Reference</a> - All built-in hooks documentation</li>
+                                        <li><a href="https://react.dev/learn/managing-state" target="_blank" class="text-emerald-600 hover:underline">React Docs - Managing State</a></li>
+                                        <li><a href="https://react.dev/learn/synchronizing-with-effects" target="_blank" class="text-emerald-600 hover:underline">React Docs - Synchronizing with Effects</a></li>
+                                        <li><a href="https://react.dev/reference/react/hooks" target="_blank" class="text-emerald-600 hover:underline">React Hooks API Reference</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Client-Side State Management</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>As apps grow, passing props through many levels becomes difficult ("prop drilling").</strong> You need state management solutions to share state across components without manually passing props through every level.</p>
-                                    <p class="mb-3"><strong>State Management Options for 2025:</strong></p>
-                                    <p class="mb-2"><mark class="bg-yellow-100 px-1">Context API (Built-in):</mark> Sufficient for simple global state like theme preferences, authentication status, and localization. Use when you have limited state complexity and small to medium applications. <strong>Performance consideration:</strong> Split contexts by domain and update frequency to prevent unnecessary re-renders.</p>
-                                    <p class="mb-2"><mark class="bg-yellow-100 px-1">Zustand (Recommended for 2025):</mark> The versatile middle ground offering Redux-like patterns without boilerplate. <strong class="text-emerald-700">Excellent performance (18-32ms vs 350ms for large Context)</strong>, tiny bundle size (4KB), simple API, and TypeScript support. Use for medium to large applications (20-100 screens).</p>
-                                    <p class="mb-3"><strong>Redux Toolkit:</strong> Gold standard for enterprise applications with 100+ screens, complex state requiring strict patterns, teams of 15+ developers, middleware requirements, and time-travel debugging needs.</p>
-                                    <p class="mb-3"><strong>Decision Framework:</strong> Small apps (&lt;20 screens) use Context API; medium apps (20-50 screens) use Zustand; large apps (50-100 screens) use Zustand or Redux Toolkit; enterprise (100+ screens) use Redux Toolkit.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Create a shopping cart application with product catalog, cart management, and checkout flow. Use Zustand to manage cart items (add, remove, update quantity, calculate totals) so any component can access or modify them.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Prop drilling problem</li>
+                                        <li>Context API for global state</li>
+                                        <li>Zustand for modern state management</li>
+                                        <li>Redux Toolkit for enterprise apps</li>
+                                        <li>State management decision framework</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank" class="text-emerald-600 hover:underline font-medium">React Docs - Context API</a> - Built-in solution</li>
-                                        <li><a href="https://github.com/pmndrs/zustand" target="_blank" class="text-emerald-600 hover:underline font-medium">Zustand Documentation</a> - Recommended modern state management</li>
-                                        <li><a href="https://redux-toolkit.js.org/" target="_blank" class="text-emerald-600 hover:underline">Redux Toolkit Documentation</a> - Enterprise solution</li>
-                                        <li><a href="https://www.youtube.com/watch?v=u9Jvt6KShkk" target="_blank" class="text-emerald-600 hover:underline">Zustand Tutorial (YouTube)</a> - Quick start guide</li>
+                                        <li><a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank" class="text-emerald-600 hover:underline">React Docs - Context API</a></li>
+                                        <li><a href="https://github.com/pmndrs/zustand" target="_blank" class="text-emerald-600 hover:underline">Zustand Documentation</a></li>
+                                        <li><a href="https://redux-toolkit.js.org/" target="_blank" class="text-emerald-600 hover:underline">Redux Toolkit Documentation</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=u9Jvt6KShkk" target="_blank" class="text-emerald-600 hover:underline">Zustand Tutorial (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Practice Project for Phase 2 -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-blue-900 flex items-center">
+                        🛠️ Phase 2 Practice Project: Task Management App
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a full-featured task management application to practice React fundamentals, hooks, and state management.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Create, read, update, and delete tasks (CRUD operations)</li>
+                            <li>Use useState for managing task list and form inputs</li>
+                            <li>Use useEffect to persist tasks to localStorage</li>
+                            <li>Implement task filtering (All, Active, Completed)</li>
+                            <li>Add task categories/tags with Context API</li>
+                            <li>Create reusable components (TaskItem, TaskForm, FilterButtons)</li>
+                            <li>Use props for component communication</li>
+                            <li>Implement conditional rendering for empty states</li>
+                            <li>Style with Tailwind CSS</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add drag-and-drop to reorder tasks</li>
+                            <li>Implement task priority levels with color coding</li>
+                            <li>Add search functionality to filter tasks</li>
+                            <li>Use Zustand instead of Context API for state management</li>
+                            <li>Add due dates with date picker component</li>
+                            <li>Implement task statistics dashboard</li>
+                        </ul>
+                    </div>
+                </div>
             </section>
 
             <section id="phase-3" class="phase-content mb-12 hidden">
+                <div id="step-3"></div>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
                         <span>Phase 3: Building for the Web with Next.js</span>
@@ -385,107 +671,122 @@
                     <p class="text-gray-600 mb-6">Next.js is the official recommended framework for building production-ready React applications. It adds powerful features like routing, server-side rendering, and API routes on top of React. <span class="font-semibold text-emerald-700">Next.js 15 (current in 2025) defaults to the App Router with React 19 support, Turbopack for faster builds, and improved caching strategies.</span></p>
                     <div class="space-y-4">
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Next.js App Router & Server Components</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>The App Router is the recommended approach for all new Next.js projects in 2025.</strong> It's the future of Next.js and all new features target it.</p>
-                                    <p class="mb-3"><strong>App Router Benefits:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">React Server Components by default</mark> - run exclusively on server, zero JS sent to client</li>
-                                        <li><mark class="bg-yellow-100 px-1">Nested layouts</mark> that don't re-render on navigation</li>
-                                        <li>Built-in streaming and Suspense</li>
-                                        <li><mark class="bg-yellow-100 px-1">Folder-based routing</mark> with special files (page.tsx, layout.tsx, route.ts)</li>
-                                        <li>Server Actions for data mutations without explicit API routes</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>App Router architecture</li>
+                                        <li>React Server Components</li>
+                                        <li>Client Components ('use client')</li>
+                                        <li>Folder-based routing</li>
+                                        <li>Nested layouts</li>
+                                        <li>SSG, SSR, and ISR rendering strategies</li>
+                                        <li>Server Actions</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Server vs Client Components:</strong> <mark class="bg-yellow-100 px-1">Server Components (default)</mark> enable direct database access, better SEO, faster initial loads, smaller JS bundles. <mark class="bg-yellow-100 px-1">Client Components ('use client' directive)</mark> handle interactivity, state, effects, and browser APIs. You can mix both—Server Components can import Client Components.</p>
-                                    <p class="mb-3"><strong>Rendering Strategies:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">SSG (Static Site Generation)</mark> - Pre-render at build time. Use for blogs, marketing pages, documentation</li>
-                                        <li><mark class="bg-yellow-100 px-1">SSR (Server-Side Rendering)</mark> - Render on-demand per request. Use for frequently updated data</li>
-                                        <li><mark class="bg-yellow-100 px-1">ISR (Incremental Static Regeneration)</mark> - Static pages regenerate after set time. Best of both worlds</li>
-                                    </ul>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Create a blog application with markdown support. Post list and individual posts are Server Components fetching data. Add a "Like" button (Client Component), comment section, and search functionality. Implement different rendering strategies for different pages.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://nextjs.org/learn" target="_blank" class="text-emerald-600 hover:underline font-medium">Next.js Learn Course</a> - Complete interactive tutorial (10 hours) building a dashboard with App Router</li>
-                                        <li><a href="https://nextjs.org/docs" target="_blank" class="text-emerald-600 hover:underline font-medium">Official Next.js Documentation</a> - Comprehensive and always current</li>
-                                        <li><a href="https://www.youtube.com/@leerob" target="_blank" class="text-emerald-600 hover:underline">Lee Robinson (YouTube)</a> - Vercel VP of Product, Next.js updates and best practices</li>
-                                        <li><a href="https://www.youtube.com/@WebDevSimplified" target="_blank" class="text-emerald-600 hover:underline">Web Dev Simplified (YouTube)</a> - Focused Next.js tutorials</li>
+                                        <li><a href="https://www.youtube.com/watch?v=b4ba60j_4o8&list=PLC3y8-rFHvwhIEc4I4YsRz5C7GOBnxSJY" target="_blank" class="text-emerald-600 hover:underline">Next.js Tutorial (YouTube Playlist)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Styling with Tailwind CSS</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Tailwind CSS is officially supported by Next.js and has become the industry standard for styling React applications.</strong> During project creation with create-next-app, select "Yes" for Tailwind CSS and it's automatically configured.</p>
-                                    <p class="mb-3"><strong>Why Tailwind for React/Next.js:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Utility-first approach</mark> - rapidly build custom designs without custom CSS</li>
-                                        <li><mark class="bg-yellow-100 px-1">Responsive design</mark> with intuitive breakpoint prefixes (sm:, md:, lg:, xl:)</li>
-                                        <li><mark class="bg-yellow-100 px-1">Dark mode support</mark> with dark: prefix</li>
-                                        <li>Extremely small production builds (only used classes are included)</li>
-                                        <li>No CSS naming conflicts or specificity issues</li>
-                                        <li>Works seamlessly with Server Components</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Utility-first CSS approach</li>
+                                        <li>Responsive design with breakpoints</li>
+                                        <li>Dark mode implementation</li>
+                                        <li>Custom theme configuration</li>
+                                        <li>Component libraries (shadcn/ui)</li>
+                                        <li>Tailwind with Server Components</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Best Practices:</strong> Use Tailwind classes directly in Server Components (styles are static), install tailwindcss-intellisense VS Code extension for autocomplete, extend the theme in tailwind.config.js for your design system, and consider component libraries like <mark class="bg-yellow-100 px-1">shadcn/ui</mark> built on Tailwind and Radix for accessible components.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Style your Next.js blog using only Tailwind CSS. Implement responsive design (mobile-first), dark mode toggle, custom color scheme in config, and try shadcn/ui for form components. Replicate a design from Medium or Dev.to.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://tailwindcss.com/docs" target="_blank" class="text-emerald-600 hover:underline font-medium">Official Tailwind CSS Documentation</a> - Comprehensive reference</li>
-                                        <li><a href="https://ui.shadcn.com/" target="_blank" class="text-emerald-600 hover:underline font-medium">shadcn/ui</a> - Beautiful components built with Tailwind and Radix</li>
-                                        <li><a href="https://www.youtube.com/watch?v=pfaSUYaSgPo" target="_blank" class="text-emerald-600 hover:underline">Tailwind CSS Full Course (YouTube)</a> - Comprehensive beginner course</li>
-                                        <li><a href="https://tailwindui.com/components" target="_blank" class="text-emerald-600 hover:underline">Tailwind UI Components</a> - Official component examples (free section available)</li>
+                                        <li><a href="https://tailwindcss.com/docs" target="_blank" class="text-emerald-600 hover:underline">Official Tailwind CSS Documentation</a></li>
+                                        <li><a href="https://ui.shadcn.com/" target="_blank" class="text-emerald-600 hover:underline">shadcn/ui</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=pfaSUYaSgPo" target="_blank" class="text-emerald-600 hover:underline">Tailwind CSS Full Course (YouTube)</a></li>
+                                        <li><a href="https://tailwindui.com/components" target="_blank" class="text-emerald-600 hover:underline">Tailwind UI Components</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Server-Side State & Data Caching</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Client-side state (UI state) is different from server-side state (data from database/API).</strong> You need specialized libraries to manage fetching, caching, and updating server data efficiently.</p>
-                                    <p class="mb-3"><strong>TanStack Query (React Query) - 2025 Leader:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Automatic caching</mark> with sophisticated invalidation strategies</li>
-                                        <li><mark class="bg-yellow-100 px-1">Background synchronization</mark> - automatically refetches stale data</li>
-                                        <li>Built-in pagination and infinite scrolling</li>
-                                        <li>Optimistic updates with automatic rollback on error</li>
-                                        <li>Prefetching capabilities for better UX</li>
-                                        <li>Included DevTools for debugging</li>
-                                        <li>Garbage collection of unused cache</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Client-side vs server-side state</li>
+                                        <li>TanStack Query (React Query)</li>
+                                        <li>Automatic caching and invalidation</li>
+                                        <li>Optimistic updates</li>
+                                        <li>Pagination and infinite scrolling</li>
+                                        <li>SWR as alternative</li>
                                     </ul>
-                                    <p class="mb-3"><strong>SWR (Simpler Alternative):</strong> Lightweight option made by Vercel (Next.js team). Smaller bundle, simpler API, good basic caching. Use for simple apps or when bundle size is critical. <strong class="text-emerald-700">Verdict:</strong> TanStack Query is the default choice for most applications in 2025—feature-rich and mature.</p>
-                                    <p class="mb-3"><strong>When to Use:</strong> Use for complex applications with dynamic queries, mutations requiring rollback, offline/online handling, pagination/infinite scrolling, and large numbers of dynamic queries.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">In your blog app, manage fetching posts and comments using TanStack Query. Implement automatic refetching on window focus, pagination for posts, optimistic updates for likes/comments, and prefetching for the next page of posts.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://tanstack.com/query/latest/docs/react/overview" target="_blank" class="text-emerald-600 hover:underline font-medium">TanStack Query Documentation</a> - Comprehensive official docs</li>
-                                        <li><a href="https://tanstack.com/query/latest/docs/react/devtools" target="_blank" class="text-emerald-600 hover:underline">TanStack Query DevTools</a> - Essential debugging tool</li>
-                                        <li><a href="https://swr.vercel.app/" target="_blank" class="text-emerald-600 hover:underline">SWR Documentation</a> - Alternative lightweight solution</li>
-                                        <li><a href="https://www.youtube.com/watch?v=8K1N3fE-cDs" target="_blank" class="text-emerald-600 hover:underline">TanStack Query Tutorial (YouTube)</a> - Practical introduction</li>
+                                        <li><a href="https://tanstack.com/query/latest/docs/react/overview" target="_blank" class="text-emerald-600 hover:underline">TanStack Query Documentation</a></li>
+                                        <li><a href="https://tanstack.com/query/latest/docs/react/devtools" target="_blank" class="text-emerald-600 hover:underline">TanStack Query DevTools</a></li>
+                                        <li><a href="https://swr.vercel.app/" target="_blank" class="text-emerald-600 hover:underline">SWR Documentation</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=8K1N3fE-cDs" target="_blank" class="text-emerald-600 hover:underline">TanStack Query Tutorial (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Practice Project for Phase 3 -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-blue-900 flex items-center">
+                        🛠️ Phase 3 Practice Project: Blog Platform with Next.js
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a modern blog platform using Next.js 15 with App Router, demonstrating server and client components, routing, and data fetching.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Use Next.js 15 App Router with folder-based routing</li>
+                            <li>Create pages: Home (blog list), Blog Post (individual post), About, Contact</li>
+                            <li>Implement Server Components for blog content rendering</li>
+                            <li>Use Client Components for interactive features (search, comments)</li>
+                            <li>Fetch blog data from a public API (JSONPlaceholder or similar)</li>
+                            <li>Implement TanStack Query for client-side data caching</li>
+                            <li>Add dynamic routes for individual blog posts ([slug]/page.tsx)</li>
+                            <li>Use nested layouts for consistent UI structure</li>
+                            <li>Style with Tailwind CSS and shadcn/ui components</li>
+                            <li>Implement dark mode toggle</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add search functionality with real-time filtering</li>
+                            <li>Implement pagination or infinite scroll</li>
+                            <li>Create a Server Action for the contact form</li>
+                            <li>Add SEO metadata using Next.js Metadata API</li>
+                            <li>Implement ISR (Incremental Static Regeneration) for blog posts</li>
+                            <li>Add a reading progress bar for blog posts</li>
+                            <li>Create category filtering system</li>
+                        </ul>
+                    </div>
+                </div>
             </section>
 
             <section id="phase-4" class="phase-content mb-12 hidden">
+                <div id="step-4"></div>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
                         <span>Phase 4: Building for Mobile with React Native</span>
@@ -494,112 +795,123 @@
                     <p class="text-gray-600 mb-6">Leverage your React knowledge to build native mobile apps for iOS and Android. We'll focus on the Expo framework, which simplifies the setup and development process significantly.</p>
                      <div class="space-y-4">
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">React Native & Expo Basics</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>React Native enables building native mobile apps for iOS and Android using React.</strong> Unlike hybrid approaches, React Native renders using native UI components for genuine mobile performance.</p>
-                                    <p class="mb-3"><strong>Why Expo for Beginners in 2025:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Zero configuration setup</mark> - no Android Studio or Xcode required initially</li>
-                                        <li><mark class="bg-yellow-100 px-1">Expo Go app</mark> for instant testing on physical devices via QR code</li>
-                                        <li>Rich SDK with pre-built access to camera, location, notifications, sensors</li>
-                                        <li><mark class="bg-yellow-100 px-1">Over-the-Air (OTA) updates</mark> - deploy fixes without app store approval</li>
-                                        <li>EAS (Expo Application Services) for cloud builds and deployment</li>
-                                        <li>Expo Router for file-based routing like Next.js</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>React Native core concepts</li>
+                                        <li>Native UI components (View, Text, Image)</li>
+                                        <li>StyleSheet API and Flexbox layout</li>
+                                        <li>Expo setup and Expo Go app</li>
+                                        <li>Touch-based events (onPress)</li>
+                                        <li>Expo Router for navigation</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Key Differences from React Web:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Native UI components</mark> not HTML: &lt;View&gt; not &lt;div&gt;, &lt;Text&gt; not &lt;p&gt;, &lt;Image&gt; not &lt;img&gt;</li>
-                                        <li>Styling uses JavaScript objects with StyleSheet API, not CSS files</li>
-                                        <li>Layout uses Flexbox by default (no CSS Grid)</li>
-                                        <li>Events are touch-based (onPress) not click-based (onClick)</li>
-                                        <li>Direct access to device features (camera, GPS, accelerometer)</li>
-                                    </ul>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Build a "Welcome" screen with logo, title, description, and button. Style it with StyleSheet. Add a second screen that opens when button is pressed. Test on your physical device using Expo Go app.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://docs.expo.dev/tutorial/introduction/" target="_blank" class="text-emerald-600 hover:underline font-medium">Expo Tutorial - "StickerSmash" App</a> - Complete 2-hour guided project</li>
-                                        <li><a href="https://reactnative.dev/docs/getting-started" target="_blank" class="text-emerald-600 hover:underline font-medium">Official React Native Docs</a> - Core concepts and API reference</li>
-                                        <li><a href="https://docs.expo.dev/" target="_blank" class="text-emerald-600 hover:underline font-medium">Official Expo Documentation</a> - Comprehensive guides</li>
-                                        <li><a href="https://www.youtube.com/@notjustdev" target="_blank" class="text-emerald-600 hover:underline">notJust.dev (YouTube)</a> - Production features like auth and payments</li>
+                                        <li><a href="https://docs.expo.dev/tutorial/introduction/" target="_blank" class="text-emerald-600 hover:underline">Expo Tutorial - "StickerSmash" App</a></li>
+                                        <li><a href="https://reactnative.dev/docs/getting-started" target="_blank" class="text-emerald-600 hover:underline">Official React Native Docs</a></li>
+                                        <li><a href="https://docs.expo.dev/" target="_blank" class="text-emerald-600 hover:underline">Official Expo Documentation</a></li>
+                                        <li><a href="https://www.youtube.com/@notjustdev" target="_blank" class="text-emerald-600 hover:underline">notJust.dev (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Navigation & Layout</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Mobile apps need robust navigation between screens.</strong> React Navigation is the industry-standard navigation library for React Native.</p>
-                                    <p class="mb-3"><strong>Navigation Patterns to Master:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Stack Navigator</mark> - Screen stacking (most common pattern), push/pop navigation</li>
-                                        <li><mark class="bg-yellow-100 px-1">Bottom Tabs Navigator</mark> - Primary app sections with tabs at bottom</li>
-                                        <li><mark class="bg-yellow-100 px-1">Drawer Navigator</mark> - Side menu that slides in</li>
-                                        <li>Nesting navigators - Combine patterns (Drawer > Tabs > Stack is common)</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Stack Navigator for screen stacking</li>
+                                        <li>Bottom Tabs Navigator</li>
+                                        <li>Drawer Navigator</li>
+                                        <li>Nesting navigators</li>
+                                        <li>Passing parameters between screens</li>
+                                        <li>Expo Router (file-based routing)</li>
                                     </ul>
-                                    <p class="mb-3"><strong>Key Concepts:</strong> Pass parameters between screens with navigation.navigate('Profile', { userId: 123 }), access params with route.params.userId, navigate programmatically from anywhere, and use TypeScript for type-safe navigation.</p>
-                                    <p class="mb-3"><strong>Alternative - Expo Router:</strong> File-based routing like Next.js. Automatically generates routes from your file structure. Recommended for new Expo projects in 2025.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Create a product catalog app. Home screen shows product list (FlatList), tapping a product navigates to detail screen with full info, add bottom tabs for Home/Favorites/Profile, implement search and filter.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://reactnavigation.org/docs/getting-started/" target="_blank" class="text-emerald-600 hover:underline font-medium">React Navigation Documentation</a> - Industry standard navigation</li>
-                                        <li><a href="https://docs.expo.dev/router/introduction/" target="_blank" class="text-emerald-600 hover:underline font-medium">Expo Router Documentation</a> - File-based routing (recommended for new projects)</li>
-                                        <li><a href="https://www.youtube.com/watch?v=nQVCkqvU1uE" target="_blank" class="text-emerald-600 hover:underline">React Navigation Tutorial (YouTube)</a> - Complete guide</li>
+                                        <li><a href="https://reactnavigation.org/docs/getting-started/" target="_blank" class="text-emerald-600 hover:underline">React Navigation Documentation</a></li>
+                                        <li><a href="https://docs.expo.dev/router/introduction/" target="_blank" class="text-emerald-600 hover:underline">Expo Router Documentation</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=nQVCkqvU1uE" target="_blank" class="text-emerald-600 hover:underline">React Navigation Tutorial (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Using Native APIs & Tailwind</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Expo provides a rich SDK for accessing device features without complex native code.</strong> This is one of Expo's biggest advantages over bare React Native.</p>
-                                    <p class="mb-3"><strong>Essential Expo APIs to Learn:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">expo-camera</mark> - Access device camera for photos/videos</li>
-                                        <li><mark class="bg-yellow-100 px-1">expo-location</mark> - Get GPS coordinates and track location</li>
-                                        <li><mark class="bg-yellow-100 px-1">expo-image-picker</mark> - Select images from device gallery</li>
-                                        <li>expo-notifications - Push notifications</li>
-                                        <li>expo-file-system - Read/write files</li>
-                                        <li>expo-sensors - Accelerometer, gyroscope</li>
-                                        <li>AsyncStorage - Persistent key-value storage</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Expo SDK APIs (camera, location, image-picker)</li>
+                                        <li>Push notifications</li>
+                                        <li>File system access</li>
+                                        <li>AsyncStorage for persistent data</li>
+                                        <li>NativeWind (Tailwind for React Native)</li>
+                                        <li>Performance optimization tips</li>
                                     </ul>
-                                    <p class="mb-3"><strong>NativeWind - Tailwind CSS for React Native:</strong> Brings utility-first styling to mobile apps. Works on iOS, Android, and web with familiar Tailwind syntax, dark mode support, responsive design utilities, and platform-specific styling (ios:, android:). Makes styling consistent between web (Next.js) and mobile (React Native).</p>
-                                    <p class="mb-3"><strong>Performance Tips:</strong> Always test on physical devices (not just simulator), optimize images (resize to display size, use WebP), use FlatList with proper optimization for long lists, and enable Hermes JavaScript engine (default in Expo SDK 51+) for faster startup.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Projects:</p>
-                                    <ul class="list-decimal list-inside space-y-1 mb-3 ml-4">
-                                        <li>Photo app: Open camera, take pictures, display in gallery, save to device</li>
-                                        <li>Weather app: Get user location, fetch weather data, display with icons</li>
-                                        <li>Notes app: Create/edit/delete notes, persist with AsyncStorage</li>
-                                    </ul>
-                                    <p class="mb-3">Style all apps using <mark class="bg-yellow-100 px-1">NativeWind</mark> for consistency with your web development skills.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://docs.expo.dev/versions/latest/" target="_blank" class="text-emerald-600 hover:underline font-medium">Expo API Reference</a> - Complete SDK documentation</li>
-                                        <li><a href="https://www.nativewind.dev/" target="_blank" class="text-emerald-600 hover:underline font-medium">NativeWind Documentation</a> - Tailwind for React Native</li>
-                                        <li><a href="https://docs.expo.dev/build/introduction/" target="_blank" class="text-emerald-600 hover:underline">EAS Build Documentation</a> - Deploy to app stores</li>
-                                        <li><a href="https://www.youtube.com/@wcandillon" target="_blank" class="text-emerald-600 hover:underline">William Candillon (YouTube)</a> - Advanced animations and UI</li>
+                                        <li><a href="https://docs.expo.dev/versions/latest/" target="_blank" class="text-emerald-600 hover:underline">Expo API Reference</a></li>
+                                        <li><a href="https://www.nativewind.dev/" target="_blank" class="text-emerald-600 hover:underline">NativeWind Documentation</a></li>
+                                        <li><a href="https://docs.expo.dev/build/introduction/" target="_blank" class="text-emerald-600 hover:underline">EAS Build Documentation</a></li>
+                                        <li><a href="https://www.youtube.com/@wcandillon" target="_blank" class="text-emerald-600 hover:underline">William Candillon (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Practice Project for Phase 4 -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-blue-900 flex items-center">
+                        🛠️ Phase 4 Practice Project: Fitness Tracker Mobile App
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a cross-platform fitness tracking mobile app using React Native and Expo to practice native components, navigation, and device APIs.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Set up Expo project with TypeScript</li>
+                            <li>Implement Expo Router for navigation (Stack, Tabs)</li>
+                            <li>Create screens: Home, Workout Log, Progress, Profile</li>
+                            <li>Use native UI components (View, Text, ScrollView, FlatList)</li>
+                            <li>Build custom workout form with input validation</li>
+                            <li>Store workout data using AsyncStorage</li>
+                            <li>Implement camera access for progress photos (expo-image-picker)</li>
+                            <li>Add charts to visualize workout progress</li>
+                            <li>Style with NativeWind (Tailwind for React Native)</li>
+                            <li>Use Zustand for state management</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add push notifications for workout reminders</li>
+                            <li>Implement exercise timer with sound alerts</li>
+                            <li>Create workout templates users can save and reuse</li>
+                            <li>Add location tracking for outdoor activities (expo-location)</li>
+                            <li>Implement streak tracking and achievement badges</li>
+                            <li>Add dark mode support</li>
+                            <li>Create animated transitions between screens</li>
+                        </ul>
+                    </div>
+                </div>
             </section>
 
             <section id="phase-5" class="phase-content mb-12 hidden">
+                <div id="step-5"></div>
                 <div class="bg-white p-6 rounded-xl shadow-md">
                     <h2 class="text-3xl font-bold mb-2 text-gray-900 flex items-center justify-between">
                         <span>Phase 5: Laravel Integration & Deployment</span>
@@ -608,67 +920,96 @@
                     <p class="text-gray-600 mb-6">This final phase connects your React/Next.js frontend with your existing Laravel backend expertise. You'll learn how to integrate the two ecosystems and deploy production-ready applications.</p>
                      <div class="space-y-4">
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Connecting React/Next.js with Laravel API</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Laravel provides the perfect backend for your React applications.</strong> You'll use Laravel for API endpoints, authentication, database management, and business logic while React/Next.js handles the frontend.</p>
-                                    <p class="mb-3"><strong>Integration Approaches:</strong></p>
-                                    <p class="mb-2"><mark class="bg-yellow-100 px-1">Option 1: Separate Deployments (Recommended for 2025):</mark> Laravel API deployed separately (e.g., on Forge, DigitalOcean) + Next.js frontend on Vercel. This allows independent scaling, easier team collaboration, and best performance for each stack.</p>
-                                    <p class="mb-2"><mark class="bg-yellow-100 px-1">Option 2: Laravel + Inertia.js:</mark> If you prefer single deployment, use Inertia.js to create modern single-page apps with React components directly in Laravel. Great for projects requiring tight backend integration.</p>
-                                    <p class="mb-3"><strong>Key Concepts to Master:</strong></p>
-                                    <ul class="list-disc list-inside space-y-1 mb-3 ml-4">
-                                        <li><mark class="bg-yellow-100 px-1">Laravel API Resources</mark> - Transform your Eloquent models into JSON responses</li>
-                                        <li><mark class="bg-yellow-100 px-1">CORS configuration</mark> - Allow your Next.js app to communicate with Laravel API</li>
-                                        <li><mark class="bg-yellow-100 px-1">Laravel Sanctum</mark> - API token authentication for SPA applications</li>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>Separate deployments vs Inertia.js</li>
+                                        <li>Laravel API Resources</li>
+                                        <li>CORS configuration</li>
+                                        <li>Laravel Sanctum authentication</li>
                                         <li>API versioning and rate limiting</li>
-                                        <li>Environment variables for API endpoints</li>
-                                        <li>Error handling and validation responses</li>
+                                        <li>TanStack Query with Laravel API</li>
                                     </ul>
-                                    <p class="mb-3"><strong>TanStack Query + Laravel:</strong> Use TanStack Query on the frontend to fetch, cache, and manage data from your Laravel API endpoints. This combination provides excellent developer experience and performance.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Build a blog application: Laravel API handles posts, users, comments, authentication (Sanctum), and database. Next.js frontend consumes the API, manages UI state with TanStack Query, implements optimistic updates, and handles authentication flow.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://laravel.com/docs/11.x/sanctum" target="_blank" class="text-emerald-600 hover:underline font-medium">Laravel Sanctum Documentation</a> - SPA authentication</li>
-                                        <li><a href="https://laravel.com/docs/11.x/eloquent-resources" target="_blank" class="text-emerald-600 hover:underline font-medium">Laravel API Resources</a> - Transform your data for APIs</li>
-                                        <li><a href="https://inertiajs.com/" target="_blank" class="text-emerald-600 hover:underline">Inertia.js</a> - Alternative: React within Laravel</li>
-                                        <li><a href="https://www.youtube.com/watch?v=_EqmFP7Gwfo" target="_blank" class="text-emerald-600 hover:underline">Laravel API + React Tutorial (YouTube)</a> - Complete integration guide</li>
+                                        <li><a href="https://laravel.com/docs/11.x/sanctum" target="_blank" class="text-emerald-600 hover:underline">Laravel Sanctum Documentation</a></li>
+                                        <li><a href="https://laravel.com/docs/11.x/eloquent-resources" target="_blank" class="text-emerald-600 hover:underline">Laravel API Resources</a></li>
+                                        <li><a href="https://inertiajs.com/" target="_blank" class="text-emerald-600 hover:underline">Inertia.js</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=_EqmFP7Gwfo" target="_blank" class="text-emerald-600 hover:underline">Laravel API + React Tutorial (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
                         <div class="accordion-item border rounded-lg">
-                            <div class="accordion-header p-4 cursor-pointer flex justify-between items-center bg-gray-50 rounded-lg">
+                            <div class="accordion-header p-4 flex items-center bg-gray-50 rounded-lg">
                                 <h3 class="font-semibold text-lg">Deployment</h3>
                                 <span class="accordion-icon transition-transform duration-300">▼</span>
                             </div>
                             <div class="accordion-content">
                                 <div class="p-4 border-t">
-                                    <p class="mb-3"><strong>Deploying your applications makes them accessible to real users.</strong> Learn the deployment platforms for both web and mobile in 2025.</p>
-                                    <p class="mb-3"><strong>Next.js Web Deployment:</strong></p>
-                                    <p class="mb-2"><mark class="bg-yellow-100 px-1">AWS Amplify (Your Choice):</mark> Full-stack deployment platform for Next.js with support for SSR, SSG, ISR, automatic CI/CD from Git repositories, custom domains, preview environments for branches, and seamless integration with other AWS services. <strong class="text-emerald-700">Free tier: 1000 build minutes, 5GB data transfer monthly.</strong> Connect your GitHub/GitLab repository for automatic deployments.</p>
-                                    <p class="mb-3"><strong>Alternatives:</strong> Vercel (zero-config for Next.js), Netlify (good for static-heavy apps), Railway (developer-friendly), DigitalOcean App Platform (cost-effective).</p>
-                                    <p class="mb-3"><strong>React Native Mobile Deployment:</strong></p>
-                                    <p class="mb-2"><mark class="bg-yellow-100 px-1">EAS Build (Expo Application Services):</mark> Cloud-based building for creating app binaries without local native tooling. Install EAS CLI: <code>npm install -g eas-cli</code>, then initialize: <code>eas build:configure</code>.</p>
-                                    <p class="mb-3"><strong>iOS App Store Requirements:</strong> Apple Developer Program membership ($99/year), App Store Connect account, app metadata and screenshots, TestFlight for beta testing. <strong>Review typically takes 1-3 days.</strong></p>
-                                    <p class="mb-3"><strong>Google Play Store Requirements:</strong> Google Play Developer account (one-time $25 fee), app listing with description and screenshots, content rating questionnaire, internal/closed/open testing tracks. <strong>Review typically takes hours to 1-2 days.</strong></p>
-                                    <p class="mb-3"><strong>EAS Update - Over-the-Air Updates:</strong> Push JavaScript updates instantly without app store review. Run: <code>eas update --branch production --message "Bug fix"</code>. Works for JavaScript, UI, and content changes but not native code modifications.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Practice Project:</p>
-                                    <p class="mb-3">Deploy your full-stack blog to AWS Amplify with production database. Set up custom domain. For mobile: build your React Native app with EAS, submit to TestFlight for iOS beta testing, deploy OTA update to fix a bug.</p>
-                                    <p class="font-semibold mb-2 text-emerald-700">Free Resources:</p>
+                                    <p class="font-semibold mb-2 text-gray-900">Topics to Cover:</p>
+                                    <ul class="list-disc list-inside space-y-1 mb-4 ml-4">
+                                        <li>AWS Amplify for Next.js deployment</li>
+                                        <li>Alternative platforms (Vercel, Netlify, Railway)</li>
+                                        <li>EAS Build for React Native apps</li>
+                                        <li>iOS App Store submission</li>
+                                        <li>Google Play Store submission</li>
+                                        <li>EAS Update for over-the-air updates</li>
+                                    </ul>
+                                    <p class="font-semibold mb-2 text-emerald-700">Resources:</p>
                                     <ul class="list-disc list-inside space-y-1">
-                                        <li><a href="https://docs.amplify.aws/nextjs/" target="_blank" class="text-emerald-600 hover:underline font-medium">AWS Amplify Next.js Documentation</a> - Complete deployment guide</li>
-                                        <li><a href="https://docs.expo.dev/build/introduction/" target="_blank" class="text-emerald-600 hover:underline font-medium">EAS Build Documentation</a> - Mobile app builds</li>
-                                        <li><a href="https://docs.expo.dev/eas-update/introduction/" target="_blank" class="text-emerald-600 hover:underline font-medium">EAS Update Documentation</a> - Over-the-air updates</li>
-                                        <li><a href="https://docs.expo.dev/submit/introduction/" target="_blank" class="text-emerald-600 hover:underline">Expo Submit Guide</a> - App store submission</li>
-                                        <li><a href="https://www.youtube.com/watch?v=8D8wJsY0L4k" target="_blank" class="text-emerald-600 hover:underline">Deploy Next.js to AWS Amplify (YouTube)</a> - Step-by-step guide</li>
+                                        <li><a href="https://docs.amplify.aws/nextjs/" target="_blank" class="text-emerald-600 hover:underline">AWS Amplify Next.js Documentation</a></li>
+                                        <li><a href="https://docs.expo.dev/build/introduction/" target="_blank" class="text-emerald-600 hover:underline">EAS Build Documentation</a></li>
+                                        <li><a href="https://docs.expo.dev/eas-update/introduction/" target="_blank" class="text-emerald-600 hover:underline">EAS Update Documentation</a></li>
+                                        <li><a href="https://docs.expo.dev/submit/introduction/" target="_blank" class="text-emerald-600 hover:underline">Expo Submit Guide</a></li>
+                                        <li><a href="https://www.youtube.com/watch?v=8D8wJsY0L4k" target="_blank" class="text-emerald-600 hover:underline">Deploy Next.js to AWS Amplify (YouTube)</a></li>
                                     </ul>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Practice Project for Phase 5 -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-300 p-6 rounded-xl shadow-md mt-6">
+                    <h3 class="text-2xl font-bold mb-3 text-blue-900 flex items-center">
+                        🛠️ Phase 5 Practice Project: Full-Stack E-Commerce Dashboard
+                    </h3>
+                    <p class="text-gray-700 mb-4">Build a complete full-stack e-commerce admin dashboard connecting Next.js frontend with Laravel backend API, and deploy both applications.</p>
+                    <div class="bg-white p-4 rounded-lg mb-4">
+                        <p class="font-semibold text-gray-900 mb-2">Requirements:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li><strong>Backend (Laravel):</strong> Create REST API with endpoints for products, orders, and customers</li>
+                            <li>Implement Laravel Sanctum for API authentication</li>
+                            <li>Create API Resources for consistent JSON responses</li>
+                            <li>Set up CORS configuration for frontend access</li>
+                            <li><strong>Frontend (Next.js):</strong> Build admin dashboard with App Router</li>
+                            <li>Implement authentication flow (login, logout, protected routes)</li>
+                            <li>Use TanStack Query to fetch and cache Laravel API data</li>
+                            <li>Create CRUD interfaces for products, orders, and customers</li>
+                            <li>Add data tables with sorting, filtering, and pagination</li>
+                            <li>Create analytics dashboard with charts</li>
+                            <li>Style with Tailwind CSS and shadcn/ui</li>
+                            <li><strong>Deployment:</strong> Deploy Next.js to Vercel and Laravel to your preferred host</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg">
+                        <p class="font-semibold text-gray-900 mb-2">Bonus Challenges:</p>
+                        <ul class="list-disc list-inside space-y-1 ml-4 text-gray-700">
+                            <li>Add image upload functionality for products</li>
+                            <li>Implement real-time notifications using Laravel Broadcasting</li>
+                            <li>Create a React Native companion app for mobile</li>
+                            <li>Add advanced search with Elasticsearch</li>
+                            <li>Implement role-based access control (admin, manager, viewer)</li>
+                            <li>Add export functionality (CSV, PDF reports)</li>
+                            <li>Set up CI/CD pipeline for automated deployments</li>
+                            <li>Add comprehensive error handling and logging</li>
+                        </ul>
                     </div>
                 </div>
             </section>
@@ -677,7 +1018,7 @@
         <!-- RECOMMENDED TECH STACK -->
         <section class="mt-16 mb-12">
             <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold mb-4 text-gray-900">🚀 Recommended Tech Stack</h2>
+                <h2 class="text-3xl font-bold mb-4 text-gray-900">🚀 Tech Stack</h2>
                 <p class="text-gray-700 mb-6">After completing this learning path, here's the production-ready stack you'll be proficient in:</p>
 
                 <div class="grid md:grid-cols-2 gap-6">
@@ -703,34 +1044,6 @@
                             <li><strong>Backend API:</strong> <mark class="bg-yellow-100 px-1">Laravel</mark> (same as web)</li>
                         </ul>
                     </div>
-                </div>
-
-                <div class="mt-6 bg-white p-5 rounded-lg shadow-md border border-emerald-100">
-                    <h3 class="text-xl font-bold mb-3 text-emerald-700">💡 Key Success Factors</h3>
-                    <ul class="list-disc list-inside space-y-2 text-gray-700">
-                        <li><strong>Consistent Practice:</strong> With 2-3 hours daily, you can complete this path in <mark class="bg-yellow-100 px-1">28 weeks (7 months)</mark></li>
-                        <li><strong>Build Projects:</strong> Each phase includes practice projects—actually build them! Portfolio projects are more valuable than certificates</li>
-                        <li><strong>Master JavaScript First:</strong> Don't rush this phase. 70% of React struggles stem from weak JS foundations</li>
-                        <li><strong>Use TypeScript from Day One:</strong> It's the industry standard in 2025. Learn it early, not later</li>
-                        <li><strong>Leverage Your Laravel Knowledge:</strong> Your backend expertise is an advantage. Focus on learning the React ecosystem and connecting it to Laravel APIs</li>
-                        <li><strong>Deploy Everything:</strong> Every project should be live and on GitHub. This is your portfolio</li>
-                        <li><strong>Focus on Modern Patterns:</strong> App Router, Server Components, TanStack Query + Laravel API—this is the modern full-stack approach</li>
-                        <li><strong>Don't Learn Everything:</strong> This roadmap focuses on the 20% that gives you 80% of results</li>
-                    </ul>
-                </div>
-
-                <div class="mt-6 p-4 bg-emerald-100 border-l-4 border-emerald-500 rounded">
-                    <p class="text-emerald-800 font-semibold">📚 Pro Tip: Bookmark the official documentation sites (react.dev, nextjs.org, docs.expo.dev) and refer to them constantly. They're your best learning resources and are always up-to-date.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="mt-16">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-3xl font-bold mb-4 text-gray-900">Estimated Time Commitment</h2>
-                <p class="text-gray-600 mb-6">This chart provides a rough estimate of the time you might spend on each phase. Your actual time may vary depending on your prior experience and learning pace. Consistency is key!</p>
-                <div class="chart-container" style="position: relative; height:40vh; width:100%; max-width: 800px; margin: auto;">
-                    <canvas id="timeCommitmentChart"></canvas>
                 </div>
             </div>
         </section>
@@ -793,7 +1106,7 @@
             function setActiveStep(targetId) {
                 stepperItems.forEach((item, index) => {
                     const line = item.previousElementSibling;
-                    const isTargetOrBefore = item.dataset.target === targetId || 
+                    const isTargetOrBefore = item.dataset.target === targetId ||
                                              Array.from(stepperItems).indexOf(item) < Array.from(stepperItems).findIndex(i => i.dataset.target === targetId);
 
                     if (item.dataset.target === targetId) {
@@ -803,7 +1116,7 @@
                         item.classList.remove('active');
                          if(line) line.classList.remove('active');
                     }
-                    
+
                     // Logic to visually complete previous steps (for the line)
                     if (line && Array.from(stepperItems).indexOf(item) <= Array.from(stepperItems).findIndex(i => i.dataset.target === targetId)) {
                         line.classList.add('active');
@@ -815,6 +1128,13 @@
                 phaseContents.forEach(content => {
                     if (content.id === targetId) {
                         content.classList.remove('hidden');
+                        // Expand all accordions in this phase
+                        const accordions = content.querySelectorAll('.accordion-header');
+                        accordions.forEach(header => {
+                            const accordionContent = header.nextElementSibling;
+                            header.classList.add('open');
+                            accordionContent.style.maxHeight = accordionContent.scrollHeight + "px";
+                        });
                     } else {
                         content.classList.add('hidden');
                     }
@@ -827,20 +1147,15 @@
                 });
             });
 
-            // FIXED ACCORDION LOGIC
+            // FIXED ACCORDION LOGIC - All expanded by default, no collapse
             accordionHeaders.forEach(header => {
-                header.addEventListener('click', () => {
-                    header.classList.toggle('open');
-                    const content = header.nextElementSibling;
-                    
-                    // Check if it's currently open (maxHeight set)
-                    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
-                        content.style.maxHeight = '0px'; // Close it
-                    } else {
-                        // Open it: set maxHeight to its full scrollHeight
-                        content.style.maxHeight = content.scrollHeight + "px";
-                    }
-                });
+                const content = header.nextElementSibling;
+                // Open all accordions by default
+                header.classList.add('open');
+                content.style.maxHeight = content.scrollHeight + "px";
+
+                // Remove click functionality - no collapse allowed
+                header.style.cursor = 'default';
             });
 
             explainButton.addEventListener('click', async () => {
@@ -874,62 +1189,82 @@
                 }
             });
 
-
-            setActiveStep('phase-1');
-
-            // FIXED CHART INITIALIZATION (Now runs inside DOMContentLoaded and relies on responsive containers)
-            const ctx = document.getElementById('timeCommitmentChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Fundamentals', 'React Core', 'Next.js Web', 'React Native', 'Laravel Integration'],
-                    datasets: [{
-                        label: 'Estimated Weeks',
-                        data: [4, 6, 8, 6, 4],
-                        backgroundColor: [
-                            'rgba(52, 211, 153, 0.8)',
-                            'rgba(16, 185, 129, 0.8)',
-                            'rgba(5, 150, 105, 0.8)',
-                            'rgba(4, 120, 87, 0.8)',
-                            'rgba(6, 95, 70, 0.8)'
-                        ],
-                        borderColor: [
-                            'rgba(52, 211, 153, 1)',
-                            'rgba(16, 185, 129, 1)',
-                            'rgba(5, 150, 105, 1)',
-                            'rgba(4, 120, 87, 1)',
-                            'rgba(6, 95, 70, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                             title: {
-                                display: true,
-                                text: 'Weeks'
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                             callbacks: {
-                                label: function(context) {
-                                    return ` ${context.raw} weeks`;
-                                }
-                            }
-                        }
-                    }
+            // Handle hash navigation
+            function handleHashChange() {
+                const hash = window.location.hash;
+                const stepMatch = hash.match(/#step-(\d+)/);
+                if (stepMatch) {
+                    const phaseId = `phase-${stepMatch[1]}`;
+                    setActiveStep(phaseId);
+                } else {
+                    setActiveStep('phase-1');
                 }
-            });
+            }
+
+            // Listen for hash changes
+            window.addEventListener('hashchange', handleHashChange);
+
+            // Handle initial load
+            handleHashChange();
+
         });
+
+
+        function toggleChatWidget() {
+            const container = document.getElementById('chat-widget-container');
+            container.classList.toggle('open');
+        }
     </script>
+
+    <!-- Floating Chat Widget -->
+    <button class="chat-widget-button" onclick="toggleChatWidget()" aria-label="Open AI Assistant">
+        <div class="flex items-center justify-center h-full relative">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+            </svg>
+            <span class="absolute -top-1 -right-1 bg-blue-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">AI</span>
+        </div>
+    </button>
+
+    <div id="chat-widget-container" class="chat-widget-container">
+        <div class="p-5 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-t-2xl flex items-center justify-between">
+            <div>
+                <h3 class="text-lg font-bold flex items-center">
+                    ✨ AI Concept Explainer
+                </h3>
+                <p class="text-sm text-emerald-100 mt-1">Ask anything about React concepts</p>
+            </div>
+            <button onclick="toggleChatWidget()" class="text-white hover:bg-emerald-700 rounded-full p-2 transition duration-200">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-5 overflow-y-auto" style="max-height: 450px;">
+            <p class="text-gray-600 text-sm mb-4">Stuck on a term like "Zustand" or "Server Actions"? Get an instant, developer-focused explanation here!</p>
+
+            <div class="space-y-3">
+                <input type="text" id="concept-input" placeholder="e.g., What is 'Prop Drilling'?" class="w-full p-3 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-150 text-sm">
+                <button id="explain-button" class="w-full bg-emerald-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-emerald-700 transition duration-200 shadow-md flex items-center justify-center">
+                    ✨ Explain Concept
+                </button>
+            </div>
+
+            <div id="explanation-result" class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg hidden">
+                <p id="explanation-text" class="text-gray-700 text-sm"></p>
+            </div>
+
+            <div id="explanation-loading" class="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-lg hidden flex items-center justify-center text-emerald-600 font-medium text-sm">
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Generating explanation...
+            </div>
+            <p id="error-message" class="text-red-500 mt-2 text-sm hidden"></p>
+        </div>
+    </div>
+
 </body>
 </html>
