@@ -131,6 +131,19 @@
             box-shadow: 0 0 50px rgba(99, 102, 241, 0.4);
         }
 
+        .path-card.ai {
+            border-color: rgba(236, 72, 153, 0.3);
+            opacity: 0.6;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .path-card.ai:hover {
+            transform: translateY(0);
+            border-color: rgba(236, 72, 153, 0.3);
+            box-shadow: none;
+        }
+
         /* Code snippet style */
         .code-snippet {
             background: rgba(17, 24, 39, 0.8);
@@ -250,7 +263,7 @@
             </header>
 
             <!-- Path Cards -->
-            <div class="grid md:grid-cols-2 gap-8 mb-16">
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
 
                 <!-- React Full-Stack Path -->
                 <a href="full-stack-react-path.html" class="terminal-card path-card react block">
@@ -263,7 +276,7 @@
                             <div class="stats-box">
                                 <div class="flex items-center justify-between">
                                     <span class="text-slate-300 text-sm">Duration</span>
-                                    <span class="text-emerald-400 font-semibold">~28 Weeks</span>
+                                    <span class="text-emerald-400 font-semibold">~12 Weeks</span>
                                 </div>
                             </div>
                             <div class="stats-box">
@@ -308,7 +321,7 @@
                             <div class="stats-box">
                                 <div class="flex items-center justify-between">
                                     <span class="text-slate-300 text-sm">Duration</span>
-                                    <span class="text-indigo-400 font-semibold">~22 Weeks</span>
+                                    <span class="text-indigo-400 font-semibold">~12 Weeks</span>
                                 </div>
                             </div>
                             <div class="stats-box">
@@ -341,6 +354,55 @@
                         </div>
                     </div>
                 </a>
+
+                <!-- AI Engineer Path - Coming Soon -->
+                <div class="terminal-card path-card ai block relative">
+                    <div class="absolute top-16 right-6 z-10">
+                        <span class="px-4 py-2 bg-pink-600/80 text-white text-xs font-bold rounded-full shadow-lg">
+                            COMING SOON
+                        </span>
+                    </div>
+                    <div class="p-8 pt-12">
+                        <div class="text-6xl mb-6 text-center">🤖</div>
+                        <h2 class="text-3xl font-bold text-white mb-4 text-center">AI Engineer</h2>
+                        <p class="text-slate-400 text-center mb-6">Master Machine Learning, LLMs, and AI application development</p>
+
+                        <div class="space-y-3 mb-6">
+                            <div class="stats-box">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-300 text-sm">Duration</span>
+                                    <span class="text-pink-400 font-semibold">TBD</span>
+                                </div>
+                            </div>
+                            <div class="stats-box">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-300 text-sm">Phases</span>
+                                    <span class="text-purple-400 font-semibold">TBD</span>
+                                </div>
+                            </div>
+                            <div class="stats-box">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-300 text-sm">Projects</span>
+                                    <span class="text-violet-400 font-semibold">TBD</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap gap-2 mb-6 justify-center">
+                            <span class="tech-tag text-xs">Python</span>
+                            <span class="tech-tag text-xs">TensorFlow</span>
+                            <span class="tech-tag text-xs">PyTorch</span>
+                            <span class="tech-tag text-xs">LLMs</span>
+                            <span class="tech-tag text-xs">LangChain</span>
+                        </div>
+
+                        <div class="text-center">
+                            <span class="inline-flex items-center text-slate-500 font-semibold">
+                                Coming Soon...
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
             </div>
 
